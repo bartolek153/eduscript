@@ -1,0 +1,51 @@
+{
+  "scopeName": "source.eduscript",
+  "name": "EduScript",
+  "patterns": [
+    {
+      "name": "keyword.control.eduscript",
+      "match": "\\b(programa|importar|var|const|funcao|ref|inicio|fimprograma|fim|se|entao|senao|fimse|enquanto|faca|fimenquanto|para|ate|passo|fimpara|retornar)\\b"
+    },
+    {
+      "name": "storage.type.eduscript",
+      "match": "\\b(inteiro|real|logico|caractere|cadeia|array|de|registro)\\b"
+    },
+    {
+      "name": "constant.language.eduscript",
+      "match": "\\b(verdadeiro|falso)\\b"
+    },
+    {
+      "name": "keyword.operator.eduscript",
+      "match": "(\\+|\\-|\\*|\\/|<=|>=|<|>|==|!=|=)"
+    },
+    {
+      "name": "punctuation.separator.eduscript",
+      "match": "(\\(|\\)|\\[|\\]|\\{|\\}|;|,|:)"
+    },
+    {
+      "name": "variable.other.eduscript",
+      "match": "\\b[a-zA-Z_][a-zA-Z_0-9]*\\b"
+    },
+    {
+      "name": "string.quoted.double.eduscript",
+      "match": "\"(?:[^\"\\\\]|\\\\.)*\""
+    },
+    {
+      "name": "constant.numeric.eduscript",
+      "match": "\\b\\d+(\\.\\d+)?\\b"
+    },
+    {
+      "name": "comment.line.double-slash.eduscript",
+      "match": "//.*$"
+    },
+    {
+      "name": "constant.character.eduscript",
+      "match": "'[^']'"
+    }
+  ],
+  "repository": {},
+  "fileTypes": [
+    "edu"
+  ],
+  "firstLineMatch": "^programa\\b"
+}

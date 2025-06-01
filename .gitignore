@@ -1,5 +1,6 @@
 # ANTLR 
 .antlr/
+output/
 
 # Compiled class file
 *.class

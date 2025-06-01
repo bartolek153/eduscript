@@ -1,0 +1,25 @@
+{
+  "name": "eduscript",
+  "displayName": "EduScript Language Support",
+  "description": "",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.100.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [{
+      "id": "eduscript",
+      "aliases": ["EduScript", "eduscript"],
+      "extensions": [".edu"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "eduscript",
+      "scopeName": "source.eduscript",
+      "path": "./syntaxes/edu.tmLanguage.json"
+    }]
+  }
+}
