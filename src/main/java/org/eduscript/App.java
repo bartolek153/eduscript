@@ -39,11 +39,14 @@ public class App
                 
                 var x: inteiro;
                 var y: inteiro;
+                var b: logic;
                 
                 inicio
                     x = 5;
                     y = 10;
+                    b = nao verdadeiro;
                     
+                    escrever(b);
                     escrever("Soma: ", x + y);
                     
                     se x < y entao
@@ -65,6 +68,15 @@ public class App
         parser.addErrorListener(errorListener);
 
         ParseTree tree = parser.program();
+
+        // Check for syntax errors and stop execution if any are found
+        if (errorListener.hasError()) {
+            System.err.println("\nCompilation failed due to syntax errors.");
+            System.exit(1);
+            return;
+        }
+        
+        System.out.println("✓ Syntax analysis completed successfully.\n");
 
         // First pass: Semantic Analysis
         System.out.println("=== Semantic Analysis ===");
