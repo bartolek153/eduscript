@@ -1,4 +1,4 @@
-package org.eduscript.semantic;
+package org.eduscript.semantic.exceptions;
 
 public class SemanticException extends Exception {
     public SemanticException(String message) {

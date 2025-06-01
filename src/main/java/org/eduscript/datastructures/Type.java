@@ -1,4 +1,4 @@
-package org.eduscript.semantic;
+package org.eduscript.datastructures;
 
 public enum Type {
     INTEIRO,

@@ -4,6 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
+import org.eduscript.datastructures.ArraySymbol;
+import org.eduscript.datastructures.FunctionSymbol;
+import org.eduscript.datastructures.Scope;
+import org.eduscript.datastructures.Symbol;
+import org.eduscript.datastructures.Type;
+import org.eduscript.datastructures.VariableSymbol;
+import org.eduscript.semantic.exceptions.SemanticException;
+
 import main.antlr4.EduScriptBaseVisitor;
 import main.antlr4.EduScriptParser;
 import main.antlr4.EduScriptParser.BlockContext;
@@ -11,8 +19,7 @@ import main.antlr4.EduScriptParser.MainBlockContext;
 
 public class SemanticAnalyzer extends EduScriptBaseVisitor<Type> {
 
-    private Scope currentScope;
-    private Stack<Scope> stack = new Stack<>();
+    protected Scope currentScope;
 
     /**
      * Initializes the global scope and processes all global declarations
@@ -26,9 +33,8 @@ public class SemanticAnalyzer extends EduScriptBaseVisitor<Type> {
     @Override
     public Type visitProgram(EduScriptParser.ProgramContext ctx) {
         Scope global = new Scope(null);
-        stack.push(global);
         
-        currentScope = new Scope(null); // global scope
+        currentScope = global; // global scope
         for (var decl : ctx.globalDeclaration()) {
             visit(decl);
         }

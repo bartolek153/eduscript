@@ -1,7 +1,8 @@
-package org.eduscript.semantic;
+package org.eduscript.datastructures;
 
 import java.util.*;
 
+import org.eduscript.semantic.exceptions.SemanticException;
 import org.eduscript.semantic.exceptions.SymbolExistsScopeException;
 
 /**
