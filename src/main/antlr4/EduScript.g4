@@ -1,7 +1,11 @@
 grammar EduScript;
 
+// ========================================
+// PARSER RULES (Grammar Specifications)
+// ========================================
+
 program
-    : 'programa' ID ';' (globalDeclaration)* mainBlock;
+    : PROGRAM ID SEMICOLON (globalDeclaration)* mainBlock;
 
 globalDeclaration
     : variableDeclaration
@@ -10,127 +14,190 @@ globalDeclaration
     | importDeclaration;
 
 importDeclaration 
-    : 'importar' STRING ';';
+    : IMPORT STRING SEMICOLON;
 
 variableDeclaration
-    : 'var' ID ':' type ';';
+    : VAR ID COLON type SEMICOLON;
 
 constantDeclaration
-    : 'const' ID ':' type '=' expression ';';
+    : CONST ID COLON type ASSIGN expression SEMICOLON;
 
 functionDeclaration
-    : 'funcao' ID '(' parameters? ')' ':' type block;
+    : FUNCTION ID LPAREN parameters? RPAREN COLON type block;
 
 parameters
-    : parameter (',' parameter)*;
+    : parameter (COMMA parameter)*;
 
 parameter
-    : ('ref'? ID) ':' type;
+    : (REF? ID) COLON type;
 
 type
-    : 'inteiro'
-    | 'real'
-    | 'logico'
-    | 'caractere'
-    | 'cadeia'
+    : INTEGER
+    | REAL_TYPE
+    | BOOLEAN
+    | CHARACTER
+    | STRING_TYPE
     | arrayType
     | recordType;
 
 arrayType
-    : 'array' LBRACK range (',' range)? RBRACK 'de' type;
+    : ARRAY LBRACK range (COMMA range)? RBRACK FROM_OF type;
 
 range
-    :INT; // INT '..' INT;
+    : INT; // INT '..' INT;
 
 recordType
-    : 'registro' '{' (variableDeclaration)+ '}';
+    : RECORD LBRACE (variableDeclaration)+ RBRACE;
 
 mainBlock
-    : 'inicio' statementList 'fimprograma';
+    : BEGIN statementList END_PROGRAM;
 
 block
-    : 'inicio' statementList 'fim';
+    : BEGIN statementList END;
 
 statementList
-    : (statement ';')*;
+    : (statement SEMICOLON)*;
 
 statement
     : assignment
     | procedureCall
-    | read
-    | write
+    | readStatement
+    | writeStatement
     | conditional
     | whileLoop
     | forLoop
-    | returnStmt
-	| variableDeclaration ;
+    | returnStatement
+    | variableDeclaration;
 
 assignment
-    : ID (LBRACK expression (',' expression)? RBRACK)? '=' expression;
+    : ID (LBRACK expression (COMMA expression)? RBRACK)? ASSIGN expression;
 
 procedureCall
-    : ID '(' arguments? ')';
+    : ID LPAREN arguments? RPAREN;
 
-read
-    : 'ler' '(' idList ')';
+readStatement
+    : READ LPAREN idList RPAREN;
 
-write
-    : 'escrever' '(' expressionList ')';
+writeStatement
+    : WRITE LPAREN expressionList RPAREN;
 
 idList
-    : ID (',' ID)*;
+    : ID (COMMA ID)*;
 
 expressionList
-    : expression (',' expression)*;
+    : expression (COMMA expression)*;
 
 conditional
-    : 'se' expression 'entao' statementList ('senao' statementList)? 'fimse';
+    : IF expression THEN statementList (ELSE statementList)? END_IF;
 
 whileLoop
-    : 'enquanto' expression 'faca' statementList 'fimenquanto';
+    : WHILE expression DO statementList END_WHILE;
 
 forLoop
-    : 'para' ID 'de' expression 'ate' expression ('passo' expression)? 'faca' statementList 'fimpara';
+    : FOR ID FROM_OF expression TO expression (STEP expression)? DO statementList END_FOR;
 
-returnStmt
-    : 'retornar' expression;
+returnStatement
+    : RETURN expression;
 
 arguments
-    : expression (',' expression)*;
+    : expression (COMMA expression)*;
 
 expression
-    : expression op=('+'|'-') expression
-    | expression op=('*'|'/') expression
-    | expression op=('<'|'>'|'<='|'>='|'=='|'!=') expression
-    | expression op=('e'|'ou') expression
-    | 'nao' expression
-    | '(' expression ')'
+    : expression op=(PLUS|MINUS) expression
+    | expression op=(MULT|DIV) expression
+    | expression op=(LT|GT|LE|GE|EQ|NE) expression
+    | expression op=(AND|OR) expression
+    | NOT expression
+    | LPAREN expression RPAREN
     | functionCall
     | constant
     | ID
-	| ID LBRACK expression (',' expression)? RBRACK ;
+    | ID LBRACK expression (COMMA expression)? RBRACK;
 
 functionCall
-    : ID '(' arguments? ')';
+    : ID LPAREN arguments? RPAREN;
 
 constant
     : INT
     | REAL
     | STRING
-    | 'verdadeiro'
-    | 'falso'
+    | TRUE
+    | FALSE
     | CHAR;
 
-ID      : [a-zA-Z_][a-zA-Z_0-9]*;
-INT     : [0-9]+;
-REAL    : [0-9]+ '.' [0-9]+;
-CHAR    : '\'' . '\'';
-STRING  : '"' (~["\r\n])* '"';
-LBRACK  : '[';
-RBRACK  : ']';
+// ========================================
+// LEXER RULES (Token Specifications)
+// ========================================
 
-// RELOPS  : '>' | '<' | '>=' | '<=' | '==' | '!=';
-// ARITOPS : '+'
+// Keywords (Portuguese strings, English token names)
+PROGRAM     : 'programa';
+IMPORT      : 'importar';
+VAR         : 'var';
+CONST       : 'const';
+FUNCTION    : 'funcao';
+REF         : 'ref';
+INTEGER     : 'inteiro';
+REAL_TYPE   : 'real';
+BOOLEAN     : 'logico';
+CHARACTER   : 'caractere';
+STRING_TYPE : 'cadeia';
+ARRAY       : 'array';
+FROM_OF     : 'de';
+RECORD      : 'registro';
+BEGIN       : 'inicio';
+END         : 'fim';
+END_PROGRAM : 'fimprograma';
+READ        : 'ler';
+WRITE       : 'escrever';
+IF          : 'se';
+THEN        : 'entao';
+ELSE        : 'senao';
+END_IF      : 'fimse';
+WHILE       : 'enquanto';
+DO          : 'faca';
+END_WHILE   : 'fimenquanto';
+FOR         : 'para';
+TO          : 'ate';
+STEP        : 'passo';
+END_FOR     : 'fimpara';
+RETURN      : 'retornar';
+TRUE        : 'verdadeiro';
+FALSE       : 'falso';
+AND         : 'e';
+OR          : 'ou';
+NOT         : 'nao';
 
+// Operators
+PLUS        : '+';
+MINUS       : '-';
+MULT        : '*';
+DIV         : '/';
+LT          : '<';
+GT          : '>';
+LE          : '<=';
+GE          : '>=';
+EQ          : '==';
+NE          : '!=';
+ASSIGN      : '=';
+
+// Delimiters
+LPAREN      : '(';
+RPAREN      : ')';
+LBRACK      : '[';
+RBRACK      : ']';
+LBRACE      : '{';
+RBRACE      : '}';
+SEMICOLON   : ';';
+COMMA       : ',';
+COLON       : ':';
+
+// Literals
+ID          : [a-zA-Z_][a-zA-Z_0-9]*;
+INT         : [0-9]+;
+REAL        : [0-9]+ '.' [0-9]+;
+CHAR        : '\'' . '\'';
+STRING      : '"' (~["\r\n])* '"';
+
+// Whitespace and comments
 WS          : [ \t\r\n]+ -> skip;
 COMMENT     : '//' ~[\r\n]* -> skip;

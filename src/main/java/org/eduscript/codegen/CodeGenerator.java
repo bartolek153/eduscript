@@ -17,10 +17,10 @@ import main.antlr4.EduScriptParser.ForLoopContext;
 import main.antlr4.EduScriptParser.FunctionCallContext;
 import main.antlr4.EduScriptParser.MainBlockContext;
 import main.antlr4.EduScriptParser.ProgramContext;
-import main.antlr4.EduScriptParser.ReadContext;
+import main.antlr4.EduScriptParser.ReadStatementContext;
 import main.antlr4.EduScriptParser.VariableDeclarationContext;
 import main.antlr4.EduScriptParser.WhileLoopContext;
-import main.antlr4.EduScriptParser.WriteContext;
+import main.antlr4.EduScriptParser.WriteStatementContext;
 
 public class CodeGenerator extends SemanticAnalyzer {
     
@@ -134,7 +134,7 @@ public class CodeGenerator extends SemanticAnalyzer {
     }
     
     @Override
-    public Type visitWrite(WriteContext ctx) {
+    public Type visitWriteStatement(WriteStatementContext ctx) {
         List<String> expressions = new ArrayList<>();
         
         for (ExpressionContext expr : ctx.expressionList().expression()) {
@@ -150,7 +150,7 @@ public class CodeGenerator extends SemanticAnalyzer {
     }
     
     @Override
-    public Type visitRead(ReadContext ctx) {
+    public Type visitReadStatement(ReadStatementContext ctx) {
         List<String> variables = new ArrayList<>();
         
         for (var id : ctx.idList().ID()) {
