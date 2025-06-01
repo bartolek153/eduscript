@@ -19,7 +19,7 @@ public class App
 {
     public static void main( String[] args ) {
         String source;
-        String outputFile = "examples/";
+        String outputFile = "output/";
         
         if (args.length > 0 && !args[0].startsWith("-D")) {
             // Read from file
@@ -35,26 +35,16 @@ public class App
         } else {
             // Use default test program
             source = """
-                programa TestProgram;
-                
-                var x: inteiro;
-                var y: inteiro;
-                var b: logic;
-                
-                inicio
-                    x = 5;
-                    y = 10;
-                    b = nao verdadeiro;
-                    
-                    escrever(b);
-                    escrever("Soma: ", x + y);
-                    
-                    se x < y entao
-                        escrever("x é menor que y");
-                    senao
-                        escrever("x é maior ou igual a y");
-                    fimse;
-                fimprograma
+                programa TestSemanticErrors;
+
+                    var x: inteiro;
+                    var x: real;  // Duplicate variable declaration
+
+                    inicio
+                        y = 10;   // Undeclared variable
+                        x = "hello";  // Type mismatch
+                        x = 5 + "world";  // Type mismatch in operation
+                    fimprograma
                 """;
         }
 
@@ -83,11 +73,21 @@ public class App
         SemanticAnalyzer semantic = new SemanticAnalyzer();
         semantic.visit(tree);
         
+        // Check for semantic errors and stop execution if any are found
+        if (semantic.getErrorHandler().hasErrors()) {
+            semantic.getErrorHandler().printSummary();
+            System.err.println("\nCompilation failed due to semantic errors.");
+            System.exit(1);
+            return;
+        }
+        
+        semantic.getErrorHandler().printSummary();
+        
         // Second pass: Code Generation
         System.out.println("\n=== Code Generation ===");
         CodeGenerator codeGen = new CodeGenerator();
         codeGen.visit(tree);
-        outputFile += codeGen.getProgram().getProgramName();
+        outputFile += codeGen.getProgram().getProgramName() + ".c";
         
         String generatedCode = codeGen.generateCode();
         System.out.println("Generated C code:");

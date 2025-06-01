@@ -18,7 +18,7 @@ public class Scope {
 
     public void define(Symbol sym) throws SemanticException {
         if (symbols.containsKey(sym.getName())) {
-            throw new SymbolExistsScopeException();
+            throw new SymbolExistsScopeException(sym.getName());
         }
         symbols.put(sym.getName(), sym);
     }

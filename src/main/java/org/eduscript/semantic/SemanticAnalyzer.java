@@ -2,15 +2,20 @@ package org.eduscript.semantic;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
 
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.eduscript.datastructures.ArraySymbol;
 import org.eduscript.datastructures.FunctionSymbol;
 import org.eduscript.datastructures.Scope;
 import org.eduscript.datastructures.Symbol;
 import org.eduscript.datastructures.Type;
 import org.eduscript.datastructures.VariableSymbol;
+import org.eduscript.semantic.exceptions.ArrayAccessException;
+import org.eduscript.semantic.exceptions.ArrayAssignmentException;
 import org.eduscript.semantic.exceptions.SemanticException;
+import org.eduscript.semantic.exceptions.SymbolExistsScopeException;
+import org.eduscript.semantic.exceptions.TypeMismatchException;
+import org.eduscript.semantic.exceptions.UndeclaredVariableException;
 
 import main.antlr4.EduScriptBaseVisitor;
 import main.antlr4.EduScriptParser;
@@ -19,7 +24,31 @@ import main.antlr4.EduScriptParser.MainBlockContext;
 
 public class SemanticAnalyzer extends EduScriptBaseVisitor<Type> {
 
+    private static final String FUN_SBL_T = "Function";
+    private static final String PARAM_SBL_T = "Parameter";
+    private static final String VAR_SBL_T = "Variable";
     protected Scope currentScope;
+    private SemanticErrorHandler errorHandler;
+
+    public SemanticAnalyzer() {
+        this.errorHandler = new SemanticErrorHandler();
+    }
+
+    public SemanticAnalyzer(SemanticErrorHandler errorHandler) {
+        this.errorHandler = errorHandler;
+    }
+
+    public SemanticErrorHandler getErrorHandler() {
+        return errorHandler;
+    }
+
+    private int getLine(ParserRuleContext ctx) {
+        return ctx.getStart().getLine();
+    }
+
+    private int getColumn(ParserRuleContext ctx) {
+        return ctx.getStart().getCharPositionInLine() + 1;
+    }
 
     /**
      * Initializes the global scope and processes all global declarations
@@ -33,7 +62,7 @@ public class SemanticAnalyzer extends EduScriptBaseVisitor<Type> {
     @Override
     public Type visitProgram(EduScriptParser.ProgramContext ctx) {
         Scope global = new Scope(null);
-        
+
         currentScope = global; // global scope
         for (var decl : ctx.globalDeclaration()) {
             visit(decl);
@@ -78,7 +107,7 @@ public class SemanticAnalyzer extends EduScriptBaseVisitor<Type> {
         if (ctx.type().arrayType() != null) {
             // é array
             EduScriptParser.ArrayTypeContext arrayCtx = ctx.type().arrayType();
-            int length = resolveArrayLength(arrayCtx); // método abaixo
+            int length = resolveArrayLength(arrayCtx);
             symbol = new ArraySymbol(varName, type, length);
         } else {
             // tipo primitivo ou outro composto
@@ -88,51 +117,61 @@ public class SemanticAnalyzer extends EduScriptBaseVisitor<Type> {
         try {
             currentScope.define(symbol);
         } catch (SemanticException e) {
-            System.err.println("Erro semântico: " + e.getMessage());
+            // Convert old exception to new standardized format
+            SymbolExistsScopeException newException = new SymbolExistsScopeException(
+                    varName, VAR_SBL_T, getLine(ctx), getColumn(ctx));
+            errorHandler.reportError(newException);
         }
 
         return null;
     }
 
+    @Override
     public Type visitFunctionDeclaration(EduScriptParser.FunctionDeclarationContext ctx) {
-    String functionName = ctx.ID().getText();
-    Type returnType = resolveType(ctx.type());
+        String functionName = ctx.ID().getText();
+        Type returnType = resolveType(ctx.type());
 
-    // Escopo local da função
-    Scope functionScope = new Scope(currentScope);
-    List<Symbol> parameters = new ArrayList<>();
+        // Escopo local da função
+        Scope functionScope = new Scope(currentScope);
+        List<Symbol> parameters = new ArrayList<>();
 
-    if (ctx.parameters() != null) {
-        for (EduScriptParser.ParameterContext paramCtx : ctx.parameters().parameter()) {
-            String paramName = paramCtx.ID().getText();
-            Type paramType = resolveType(paramCtx.type());
+        if (ctx.parameters() != null) {
+            for (EduScriptParser.ParameterContext paramCtx : ctx.parameters().parameter()) {
+                String paramName = paramCtx.ID().getText();
+                Type paramType = resolveType(paramCtx.type());
 
-            VariableSymbol paramSymbol = new VariableSymbol(paramName, paramType);
-            try {
-                functionScope.define(paramSymbol);
-                parameters.add(paramSymbol);
-            } catch (SemanticException ex) {
-                System.err.println("error in functionScope.define(paramSymbol);");
+                VariableSymbol paramSymbol = new VariableSymbol(paramName, paramType);
+                try {
+                    functionScope.define(paramSymbol);
+                    parameters.add(paramSymbol);
+                } catch (SemanticException ex) {
+                    // Report parameter name conflict, not function name
+                    SymbolExistsScopeException paramException = new SymbolExistsScopeException(
+                            paramName, PARAM_SBL_T, getLine(paramCtx), getColumn(paramCtx));
+                    errorHandler.reportError(paramException);
+                }
             }
         }
+
+        // Cria símbolo da função
+        FunctionSymbol functionSymbol = new FunctionSymbol(functionName, returnType, parameters, functionScope);
+        try {
+            currentScope.define(functionSymbol);
+        } catch (SemanticException e) {
+            // Use standardized error handling instead of System.err.println
+            SymbolExistsScopeException functionException = new SymbolExistsScopeException(
+                    functionName, FUN_SBL_T, getLine(ctx), getColumn(ctx));
+            errorHandler.reportError(functionException);
+        }
+
+        // Visita o corpo da função
+        Scope previous = currentScope;
+        currentScope = functionScope;
+        visit(ctx.block());
+        currentScope = previous;
+
+        return null;
     }
-
-    // Cria símbolo da função
-    FunctionSymbol functionSymbol = new FunctionSymbol(functionName, returnType, parameters, functionScope);
-    try {
-        currentScope.define(functionSymbol);
-    } catch (SemanticException e) {
-        System.err.println("Erro semântico: " + e.getMessage());
-    }
-
-    // Visita o corpo da função
-    Scope previous = currentScope;
-    currentScope = functionScope;
-    visit(ctx.block());
-    currentScope = previous;
-
-    return null;
-}
 
     /*
      * a cada atribuição, verifica se a variável foi declarada antes (linguagem
@@ -146,14 +185,18 @@ public class SemanticAnalyzer extends EduScriptBaseVisitor<Type> {
         Symbol sym = currentScope.resolve(id);
 
         if (sym == null) {
-            System.err.println("Erro: variável não declarada: " + id);
+            UndeclaredVariableException exception = new UndeclaredVariableException(
+                    id, getLine(ctx), getColumn(ctx));
+            errorHandler.reportError(exception);
             return Type.INVALIDO;
         }
 
         // Verifica se é uma atribuição com índice (array)
         if (ctx.LBRACK() != null) {
             if (!(sym instanceof ArraySymbol)) {
-                System.err.printf("Erro: variável %s não é um array, mas foi usada como tal%n", id);
+                ArrayAccessException exception = new ArrayAccessException(
+                        id, getLine(ctx), getColumn(ctx));
+                errorHandler.reportError(exception);
                 return Type.INVALIDO;
             }
 
@@ -161,30 +204,38 @@ public class SemanticAnalyzer extends EduScriptBaseVisitor<Type> {
 
             List<EduScriptParser.ExpressionContext> expressions = ctx.expression();
             if (expressions.size() < 2) {
-                System.err.printf("Erro: atribuição a array %s exige índice e valor%n", id);
+                ArrayAssignmentException exception = new ArrayAssignmentException(
+                        id, getLine(ctx), getColumn(ctx));
+                errorHandler.reportError(exception);
                 return Type.INVALIDO;
             }
 
             // Verifica o índice
             Type indexType = visit(expressions.get(0));
             if (indexType != Type.INTEIRO) {
-                System.err.printf("Erro: índice do array %s deve ser inteiro, mas é %s%n", id, indexType);
+                TypeMismatchException exception = TypeMismatchException.forVariable(
+                        String.format("array index for '%s'", id), Type.INTEIRO, indexType,
+                        getLine(ctx), getColumn(ctx));
+                errorHandler.reportError(exception);
                 return Type.INVALIDO;
             }
 
             // Verifica o valor atribuído (última expressão)
             Type valueType = visit(expressions.get(1));
             if (arraySym.getType() != valueType) {
-                System.err.printf("Erro de tipo: array %s armazena %s, mas tentou atribuir %s%n", id,
-                        arraySym.getType(), valueType);
+                TypeMismatchException exception = TypeMismatchException.forVariable(
+                        String.format("array '%s'", id), arraySym.getType(), valueType,
+                        getLine(ctx), getColumn(ctx));
+                errorHandler.reportError(exception);
             }
 
         } else {
             // Atribuição simples
             Type exprType = visit(ctx.expression(0));
             if (sym.getType() != exprType) {
-                System.err.printf("Erro de tipo: variável %s é do tipo %s, mas expressão é %s%n", id, sym.getType(),
-                        exprType);
+                TypeMismatchException exception = TypeMismatchException.forVariable(
+                        id, sym.getType(), exprType, getLine(ctx), getColumn(ctx));
+                errorHandler.reportError(exception);
             }
         }
 
@@ -207,14 +258,18 @@ public class SemanticAnalyzer extends EduScriptBaseVisitor<Type> {
         if (ctx.op != null) {
             Type left = visit(ctx.expression(0));
             Type right = visit(ctx.expression(1));
-            switch (ctx.op.getText()) {
+            String operator = ctx.op.getText();
+
+            switch (operator) {
                 case "+":
                 case "-":
                 case "*":
                 case "/":
                     if ((left == Type.INTEIRO || left == Type.REAL) && left == right)
                         return left;
-                    System.err.println("Erro de tipo em operação aritmética.");
+                    TypeMismatchException arithmeticException = TypeMismatchException.forOperation(
+                            operator, left, right, getLine(ctx), getColumn(ctx));
+                    errorHandler.reportError(arithmeticException);
                     return Type.INVALIDO;
                 case "==":
                 case "!=":
@@ -227,7 +282,9 @@ public class SemanticAnalyzer extends EduScriptBaseVisitor<Type> {
                 case "ou":
                     if (left == Type.LOGICO && right == Type.LOGICO)
                         return Type.LOGICO;
-                    System.err.println("Erro de tipo: esperado tipo lógico.");
+                    TypeMismatchException logicalException = TypeMismatchException.forOperation(
+                            operator, left, right, getLine(ctx), getColumn(ctx));
+                    errorHandler.reportError(logicalException);
                     return Type.INVALIDO;
             }
         } else if (ctx.constant() != null) {
@@ -235,7 +292,9 @@ public class SemanticAnalyzer extends EduScriptBaseVisitor<Type> {
         } else if (ctx.ID() != null) {
             Symbol sym = currentScope.resolve(ctx.ID().getText());
             if (sym == null) {
-                System.err.println("Erro: identificador não declarado " + ctx.ID().getText());
+                UndeclaredVariableException exception = new UndeclaredVariableException(
+                        ctx.ID().getText(), getLine(ctx), getColumn(ctx));
+                errorHandler.reportError(exception);
                 return Type.INVALIDO;
             }
             return sym.getType();
@@ -261,8 +320,8 @@ public class SemanticAnalyzer extends EduScriptBaseVisitor<Type> {
     private Type resolveType(EduScriptParser.TypeContext ctx) {
         if (ctx.arrayType() != null) {
             return resolveType(ctx.arrayType().type());
-        } 
-        
+        }
+
         switch (ctx.getText()) {
             case "inteiro":
                 return Type.INTEIRO;
