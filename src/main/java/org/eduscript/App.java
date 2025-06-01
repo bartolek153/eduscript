@@ -132,6 +132,7 @@ public class App
         Logger.printSuccess("code generated succesfully");
 
         Logger.printPhase("invoking code runner");
+        Logger.printStep("creating c runner");
         Runner runner = new CRunner();
         runner.invoke(outputFile);
     }
