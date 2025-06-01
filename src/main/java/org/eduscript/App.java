@@ -19,7 +19,7 @@ public class App
 {
     public static void main( String[] args ) {
         String source;
-        String outputFile = "examples/output.c";
+        String outputFile = "examples/";
         
         if (args.length > 0 && !args[0].startsWith("-D")) {
             // Read from file
@@ -75,6 +75,7 @@ public class App
         System.out.println("\n=== Code Generation ===");
         CodeGenerator codeGen = new CodeGenerator();
         codeGen.visit(tree);
+        outputFile += codeGen.getProgram().getProgramName();
         
         String generatedCode = codeGen.generateCode();
         System.out.println("Generated C code:");

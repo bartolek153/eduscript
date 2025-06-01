@@ -312,6 +312,10 @@ public class CodeGenerator extends SemanticAnalyzer {
     private Scope getCurrentScope() {
         return currentScope;
     }
+
+    public ProgramCommand getProgram() {
+        return this.program;
+    }
     
     // Helper command class for symbol declarations
     private static class SymbolDeclarationCommand extends BaseCommand {

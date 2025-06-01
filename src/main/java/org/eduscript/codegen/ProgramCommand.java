@@ -46,4 +46,8 @@ public class ProgramCommand extends BaseCommand {
         
         return code.toString();
     }
+
+    public String getProgramName() {
+        return this.programName;
+    }
 }
