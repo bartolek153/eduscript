@@ -8,3 +8,4 @@
 
 * ANTLR4 Grammar
 * Javadoc
+* Maven modules
