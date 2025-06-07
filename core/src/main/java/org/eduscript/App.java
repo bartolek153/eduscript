@@ -1,7 +1,9 @@
 package org.eduscript;
 
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.antlr.v4.runtime.CharStream;
@@ -18,9 +20,8 @@ import org.eduscript.utils.Logger;
 import main.antlr4.EduScriptLexer;
 import main.antlr4.EduScriptParser;
 
-public class App
-{
-    public static void main( String[] args ) {
+public class App {
+    public static void main(String[] args) {
         long startTime = System.currentTimeMillis();
         String source;
         String outputFile = "output/";
@@ -28,7 +29,7 @@ public class App
 
         Logger.printHeader("EduScript Compiler");
         Logger.printInfo("Starting compilation process...");
-        
+
         if (args.length > 0 && !args[0].startsWith("-D")) {
             // Read from file
             Logger.printFileInfo("Reading source file", args[0]);
@@ -47,26 +48,16 @@ public class App
         } else {
             Logger.printInfo("Using default test program");
             source = """
-                programa SimpleTest;
-
-                    var x: inteiro;
-                    var y: inteiro;
-                    
+                    programa test;
+                        var x: inteiro;
                     inicio
-                        x = 10;
-                        y = 20;
-                        escrever("Hello from EduScript!");
-                        escrever("x = ", x);
-                        escrever("y = ", y);
-                        escrever("x + y = ", x + y);
                     fimprograma
-
-                """;
+                    """;
         }
 
         Logger.printSeparator();
         Logger.printPhase("starting lexical analysis");
-        
+
         Logger.printStep("transforming source code in CharStream");
         CharStream input = CharStreams.fromString(source);
 
@@ -97,21 +88,21 @@ public class App
             System.exit(1);
             return;
         }
-        
+
         Logger.printSuccess("syntax analysis completed successfully");
         Logger.printPhase("starting semantic analysis");
 
         Logger.printStep("creating semantic analyzer");
         SemanticAnalyzer semantic = new SemanticAnalyzer();
         semantic.visit(tree);
-        
+
         if (semantic.getErrorHandler().hasErrors()) {
             semantic.getErrorHandler().printSummary();
             Logger.printError("compilation failed due to semantic errors.");
             System.exit(1);
             return;
         }
-    
+
         Logger.printSuccess("semantic analysis completed successfully");
         Logger.printPhase("starting code generation");
 
@@ -119,21 +110,24 @@ public class App
         CodeGenerator codeGen = new CodeGenerator();
         codeGen.visit(tree);
 
-        outputFile += codeGen.getProgram().getProgramName() + ".c";
+        outputFile += codeGen.getProgram().getProgramName() + ".ll";
         String generatedCode = codeGen.generateCode();
-        
+
         try {
             Logger.printStep("writing code to temporary file in '" + outputFile + "'");
-            Files.write(Paths.get(outputFile), generatedCode.getBytes());
+            Path path = Paths.get(outputFile);
+            Files.createDirectories(path.getParent());
+            Files.write(path, generatedCode.getBytes());
         } catch (IOException e) {
-            Logger.printError("Error writing output file: " + e.getMessage());
+            Logger.printError("error writing output file: " + e.getMessage());
+            return;
         }
 
         Logger.printSuccess("code generated succesfully");
 
-        Logger.printPhase("invoking code runner");
-        Logger.printStep("creating c runner");
-        Runner runner = new CRunner();
-        runner.invoke(outputFile);
+        // Logger.printPhase("invoking code runner");
+        // Logger.printStep("creating c runner");
+        // Runner runner = new CRunner();
+        // runner.invoke(outputFile);
     }
 }

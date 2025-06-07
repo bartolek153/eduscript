@@ -5,9 +5,9 @@ import java.util.List;
 public class FunctionSymbol extends Symbol {
     public final List<Symbol> parameters;
     public final Scope scope;
-    private String body; // C code body
+    private String body; // converted code body
 
-    public FunctionSymbol(String name, Type returnType, List<Symbol> parameters, Scope scope) {
+    public FunctionSymbol(String name, EduType returnType, List<Symbol> parameters, Scope scope) {
         super(name, returnType);
         this.parameters = parameters;
         this.scope = scope;
@@ -19,33 +19,22 @@ public class FunctionSymbol extends Symbol {
     
     @Override
     public String generateDeclaration() {
+        // define <return_type> @<function_name>(<arg_type> %<arg_name>, ...) {
+        // entry:
+        //   ; variable allocations
+        //   ; instructions
+        //   ; return
+        // }
+        
         StringBuilder code = new StringBuilder();
         
-        // Function signature
-        code.append(convertTypeToC(getType()));
-        code.append(" ");
-        code.append(getName());
-        code.append("(");
-        
-        // Parameters
-        for (int i = 0; i < parameters.size(); i++) {
-            Symbol param = parameters.get(i);
-            code.append(convertTypeToC(param.getType()));
-            code.append(" ");
-            code.append(param.getName());
-            if (i < parameters.size() - 1) {
-                code.append(", ");
-            }
+        code.append(String.format("define %s @%s(", 
+            Symbol.getIrType(getType()), getName()));
+
+        for (Symbol arg : parameters) {
+            
         }
         
-        code.append(") {\n");
-        
-        // Function body
-        if (body != null) {
-            code.append(body);
-        }
-        
-        code.append("}\n\n");
         return code.toString();
     }
 }

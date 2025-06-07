@@ -25,26 +25,24 @@ public class ProgramCommand extends BaseCommand {
     public String generateCode() {
         StringBuilder code = new StringBuilder();
         
-        // C headers
-        code.append("#include <stdio.h>\n");
-        code.append("#include <stdlib.h>\n");
-        code.append("#include <stdbool.h>\n");
-        code.append("#include <string.h>\n\n");
-        
         // Global declarations
         for (BaseCommand decl : globalDeclarations) {
-            code.append(decl.generateCode());
+            String b = decl.generateCode();
+            code.append(b);
         }
         
         // Main function
-        code.append("\nint main() {\n");
+        code.append("define i32 @main() {\n");
+        code.append("entry:\n");
+        String b = code.toString();
         if (mainBlock != null) {
             code.append(mainBlock.generateCode());
         }
-        code.append("    return 0;\n");
+        code.append("  ret i32 0\n");
         code.append("}\n");
         
-        return code.toString();
+        String a =  code.toString();
+        return a;
     }
 
     public String getProgramName() {

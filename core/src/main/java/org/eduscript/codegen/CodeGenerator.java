@@ -6,7 +6,7 @@ import java.util.Stack;
 
 import org.eduscript.datastructures.Scope;
 import org.eduscript.datastructures.Symbol;
-import org.eduscript.datastructures.Type;
+import org.eduscript.datastructures.EduType;
 import org.eduscript.semantic.SemanticAnalyzer;
 
 import main.antlr4.EduScriptParser.AssignmentContext;
@@ -40,7 +40,7 @@ public class CodeGenerator extends SemanticAnalyzer {
     }
     
     @Override
-    public Type visitProgram(ProgramContext ctx) {
+    public EduType visitProgram(ProgramContext ctx) {
         // Create the main program command
         program = new ProgramCommand(ctx.ID().getText());
         
@@ -51,7 +51,7 @@ public class CodeGenerator extends SemanticAnalyzer {
     }
     
     @Override
-    public Type visitMainBlock(MainBlockContext ctx) {
+    public EduType visitMainBlock(MainBlockContext ctx) {
         // Create main block
         BlockCommand mainBlock = new BlockCommand(1);
         blockStack.push(mainBlock);
@@ -69,7 +69,7 @@ public class CodeGenerator extends SemanticAnalyzer {
     }
     
     @Override
-    public Type visitBlock(BlockContext ctx) {
+    public EduType visitBlock(BlockContext ctx) {
         // Create new block
         BlockCommand block = new BlockCommand(currentIndentLevel);
         blockStack.push(block);
@@ -86,9 +86,9 @@ public class CodeGenerator extends SemanticAnalyzer {
     }
     
     @Override
-    public Type visitVariableDeclaration(VariableDeclarationContext ctx) {
+    public EduType visitVariableDeclaration(VariableDeclarationContext ctx) {
         // First do semantic analysis
-        Type type = super.visitVariableDeclaration(ctx);
+        EduType type = super.visitVariableDeclaration(ctx);
         
         // Generate declaration code
         String varName = ctx.ID().getText();
@@ -108,9 +108,9 @@ public class CodeGenerator extends SemanticAnalyzer {
     }
     
     @Override
-    public Type visitAssignment(AssignmentContext ctx) {
+    public EduType visitAssignment(AssignmentContext ctx) {
         // First do semantic analysis
-        Type type = super.visitAssignment(ctx);
+        EduType type = super.visitAssignment(ctx);
         
         // Generate assignment code
         String varName = ctx.ID().getText();
@@ -134,7 +134,7 @@ public class CodeGenerator extends SemanticAnalyzer {
     }
     
     @Override
-    public Type visitWriteStatement(WriteStatementContext ctx) {
+    public EduType visitWriteStatement(WriteStatementContext ctx) {
         List<String> expressions = new ArrayList<>();
         
         for (ExpressionContext expr : ctx.expressionList().expression()) {
@@ -150,7 +150,7 @@ public class CodeGenerator extends SemanticAnalyzer {
     }
     
     @Override
-    public Type visitReadStatement(ReadStatementContext ctx) {
+    public EduType visitReadStatement(ReadStatementContext ctx) {
         List<String> variables = new ArrayList<>();
         
         for (var id : ctx.idList().ID()) {
@@ -166,7 +166,7 @@ public class CodeGenerator extends SemanticAnalyzer {
     }
     
     @Override
-    public Type visitConditional(ConditionalContext ctx) {
+    public EduType visitConditional(ConditionalContext ctx) {
         String condition = generateExpression(ctx.expression());
         
         // Create then block
@@ -204,7 +204,7 @@ public class CodeGenerator extends SemanticAnalyzer {
     }
     
     @Override
-    public Type visitWhileLoop(WhileLoopContext ctx) {
+    public EduType visitWhileLoop(WhileLoopContext ctx) {
         String condition = generateExpression(ctx.expression());
         
         // Create loop body
@@ -226,7 +226,7 @@ public class CodeGenerator extends SemanticAnalyzer {
     }
     
     @Override
-    public Type visitForLoop(ForLoopContext ctx) {
+    public EduType visitForLoop(ForLoopContext ctx) {
         String variable = ctx.ID().getText();
         String startValue = generateExpression(ctx.expression(0));
         String endValue = generateExpression(ctx.expression(1));
@@ -327,7 +327,8 @@ public class CodeGenerator extends SemanticAnalyzer {
         
         @Override
         public String generateCode() {
-            return symbol.generateDeclaration();
+            String c = symbol.generateDeclaration();
+            return c;
         }
     }
 }

@@ -8,7 +8,7 @@ import org.eduscript.datastructures.ArraySymbol;
 import org.eduscript.datastructures.FunctionSymbol;
 import org.eduscript.datastructures.Scope;
 import org.eduscript.datastructures.Symbol;
-import org.eduscript.datastructures.Type;
+import org.eduscript.datastructures.EduType;
 import org.eduscript.datastructures.VariableSymbol;
 import org.eduscript.semantic.exceptions.ArrayAccessException;
 import org.eduscript.semantic.exceptions.ArrayAssignmentException;
@@ -22,7 +22,7 @@ import main.antlr4.EduScriptParser;
 import main.antlr4.EduScriptParser.BlockContext;
 import main.antlr4.EduScriptParser.MainBlockContext;
 
-public class SemanticAnalyzer extends EduScriptBaseVisitor<Type> {
+public class SemanticAnalyzer extends EduScriptBaseVisitor<EduType> {
 
     private static final String FUN_SBL_T = "Function";
     private static final String PARAM_SBL_T = "Parameter";
@@ -60,10 +60,8 @@ public class SemanticAnalyzer extends EduScriptBaseVisitor<Type> {
      *         for semantic analysis.
      */
     @Override
-    public Type visitProgram(EduScriptParser.ProgramContext ctx) {
-        Scope global = new Scope(null);
-
-        currentScope = global; // global scope
+    public EduType visitProgram(EduScriptParser.ProgramContext ctx) {
+        currentScope = new Scope(null); // global scope
         for (var decl : ctx.globalDeclaration()) {
             visit(decl);
         }
@@ -72,14 +70,14 @@ public class SemanticAnalyzer extends EduScriptBaseVisitor<Type> {
     }
 
     @Override
-    public Type visitMainBlock(MainBlockContext ctx) {
+    public EduType visitMainBlock(MainBlockContext ctx) {
         currentScope = new Scope(currentScope);
         visit(ctx.statementList());
         return null;
     }
 
     @Override
-    public Type visitBlock(BlockContext ctx) {
+    public EduType visitBlock(BlockContext ctx) {
         currentScope = new Scope(currentScope);
         visit(ctx.statementList());
         return null;
@@ -98,9 +96,9 @@ public class SemanticAnalyzer extends EduScriptBaseVisitor<Type> {
      *         types.
      */
     @Override
-    public Type visitVariableDeclaration(EduScriptParser.VariableDeclarationContext ctx) {
+    public EduType visitVariableDeclaration(EduScriptParser.VariableDeclarationContext ctx) {
         String varName = ctx.ID().getText();
-        Type type = resolveType(ctx.type());
+        EduType type = resolveType(ctx.type());
 
         Symbol symbol;
 
@@ -127,9 +125,9 @@ public class SemanticAnalyzer extends EduScriptBaseVisitor<Type> {
     }
 
     @Override
-    public Type visitFunctionDeclaration(EduScriptParser.FunctionDeclarationContext ctx) {
+    public EduType visitFunctionDeclaration(EduScriptParser.FunctionDeclarationContext ctx) {
         String functionName = ctx.ID().getText();
-        Type returnType = resolveType(ctx.type());
+        EduType returnType = resolveType(ctx.type());
 
         // Escopo local da função
         Scope functionScope = new Scope(currentScope);
@@ -138,7 +136,7 @@ public class SemanticAnalyzer extends EduScriptBaseVisitor<Type> {
         if (ctx.parameters() != null) {
             for (EduScriptParser.ParameterContext paramCtx : ctx.parameters().parameter()) {
                 String paramName = paramCtx.ID().getText();
-                Type paramType = resolveType(paramCtx.type());
+                EduType paramType = resolveType(paramCtx.type());
 
                 VariableSymbol paramSymbol = new VariableSymbol(paramName, paramType);
                 try {
@@ -180,7 +178,7 @@ public class SemanticAnalyzer extends EduScriptBaseVisitor<Type> {
      * atribuído
      */
     @Override
-    public Type visitAssignment(EduScriptParser.AssignmentContext ctx) {
+    public EduType visitAssignment(EduScriptParser.AssignmentContext ctx) {
         String id = ctx.ID().getText();
         Symbol sym = currentScope.resolve(id);
 
@@ -188,7 +186,7 @@ public class SemanticAnalyzer extends EduScriptBaseVisitor<Type> {
             UndeclaredVariableException exception = new UndeclaredVariableException(
                     id, getLine(ctx), getColumn(ctx));
             errorHandler.reportError(exception);
-            return Type.INVALIDO;
+            return EduType.INVALIDO;
         }
 
         // Verifica se é uma atribuição com índice (array)
@@ -197,7 +195,7 @@ public class SemanticAnalyzer extends EduScriptBaseVisitor<Type> {
                 ArrayAccessException exception = new ArrayAccessException(
                         id, getLine(ctx), getColumn(ctx));
                 errorHandler.reportError(exception);
-                return Type.INVALIDO;
+                return EduType.INVALIDO;
             }
 
             ArraySymbol arraySym = (ArraySymbol) sym;
@@ -207,21 +205,21 @@ public class SemanticAnalyzer extends EduScriptBaseVisitor<Type> {
                 ArrayAssignmentException exception = new ArrayAssignmentException(
                         id, getLine(ctx), getColumn(ctx));
                 errorHandler.reportError(exception);
-                return Type.INVALIDO;
+                return EduType.INVALIDO;
             }
 
             // Verifica o índice
-            Type indexType = visit(expressions.get(0));
-            if (indexType != Type.INTEIRO) {
+            EduType indexType = visit(expressions.get(0));
+            if (indexType != EduType.INTEIRO) {
                 TypeMismatchException exception = TypeMismatchException.forVariable(
-                        String.format("array index for '%s'", id), Type.INTEIRO, indexType,
+                        String.format("array index for '%s'", id), EduType.INTEIRO, indexType,
                         getLine(ctx), getColumn(ctx));
                 errorHandler.reportError(exception);
-                return Type.INVALIDO;
+                return EduType.INVALIDO;
             }
 
             // Verifica o valor atribuído (última expressão)
-            Type valueType = visit(expressions.get(1));
+            EduType valueType = visit(expressions.get(1));
             if (arraySym.getType() != valueType) {
                 TypeMismatchException exception = TypeMismatchException.forVariable(
                         String.format("array '%s'", id), arraySym.getType(), valueType,
@@ -231,7 +229,7 @@ public class SemanticAnalyzer extends EduScriptBaseVisitor<Type> {
 
         } else {
             // Atribuição simples
-            Type exprType = visit(ctx.expression(0));
+            EduType exprType = visit(ctx.expression(0));
             if (sym.getType() != exprType) {
                 TypeMismatchException exception = TypeMismatchException.forVariable(
                         id, sym.getType(), exprType, getLine(ctx), getColumn(ctx));
@@ -254,10 +252,10 @@ public class SemanticAnalyzer extends EduScriptBaseVisitor<Type> {
      * @return The resulting type, or {@code Type.INVALIDO} if invalid.
      */
     @Override
-    public Type visitExpression(EduScriptParser.ExpressionContext ctx) {
+    public EduType visitExpression(EduScriptParser.ExpressionContext ctx) {
         if (ctx.op != null) {
-            Type left = visit(ctx.expression(0));
-            Type right = visit(ctx.expression(1));
+            EduType left = visit(ctx.expression(0));
+            EduType right = visit(ctx.expression(1));
             String operator = ctx.op.getText();
 
             switch (operator) {
@@ -265,27 +263,27 @@ public class SemanticAnalyzer extends EduScriptBaseVisitor<Type> {
                 case "-":
                 case "*":
                 case "/":
-                    if ((left == Type.INTEIRO || left == Type.REAL) && left == right)
+                    if ((left == EduType.INTEIRO || left == EduType.REAL) && left == right)
                         return left;
                     TypeMismatchException arithmeticException = TypeMismatchException.forOperation(
                             operator, left, right, getLine(ctx), getColumn(ctx));
                     errorHandler.reportError(arithmeticException);
-                    return Type.INVALIDO;
+                    return EduType.INVALIDO;
                 case "==":
                 case "!=":
                 case "<":
                 case "<=":
                 case ">":
                 case ">=":
-                    return Type.LOGICO;
+                    return EduType.LOGICO;
                 case "e":
                 case "ou":
-                    if (left == Type.LOGICO && right == Type.LOGICO)
-                        return Type.LOGICO;
+                    if (left == EduType.LOGICO && right == EduType.LOGICO)
+                        return EduType.LOGICO;
                     TypeMismatchException logicalException = TypeMismatchException.forOperation(
                             operator, left, right, getLine(ctx), getColumn(ctx));
                     errorHandler.reportError(logicalException);
-                    return Type.INVALIDO;
+                    return EduType.INVALIDO;
             }
         } else if (ctx.constant() != null) {
             return visit(ctx.constant());
@@ -295,46 +293,46 @@ public class SemanticAnalyzer extends EduScriptBaseVisitor<Type> {
                 UndeclaredVariableException exception = new UndeclaredVariableException(
                         ctx.ID().getText(), getLine(ctx), getColumn(ctx));
                 errorHandler.reportError(exception);
-                return Type.INVALIDO;
+                return EduType.INVALIDO;
             }
             return sym.getType();
         }
-        return Type.INVALIDO;
+        return EduType.INVALIDO;
     }
 
     @Override
-    public Type visitConstant(EduScriptParser.ConstantContext ctx) {
+    public EduType visitConstant(EduScriptParser.ConstantContext ctx) {
         if (ctx.INT() != null)
-            return Type.INTEIRO;
+            return EduType.INTEIRO;
         if (ctx.REAL() != null)
-            return Type.REAL;
+            return EduType.REAL;
         if (ctx.STRING() != null)
-            return Type.CADEIA;
+            return EduType.TEXTO;
         if (ctx.CHAR() != null)
-            return Type.CARACTERE;
+            return EduType.CARACTERE;
         if (ctx.getText().equals("verdadeiro") || ctx.getText().equals("falso"))
-            return Type.LOGICO;
-        return Type.INVALIDO;
+            return EduType.LOGICO;
+        return EduType.INVALIDO;
     }
 
-    private Type resolveType(EduScriptParser.TypeContext ctx) {
+    private EduType resolveType(EduScriptParser.TypeContext ctx) {
         if (ctx.arrayType() != null) {
             return resolveType(ctx.arrayType().type());
         }
 
         switch (ctx.getText()) {
             case "inteiro":
-                return Type.INTEIRO;
+                return EduType.INTEIRO;
             case "real":
-                return Type.REAL;
+                return EduType.REAL;
             case "logico":
-                return Type.LOGICO;
+                return EduType.LOGICO;
             case "caractere":
-                return Type.CARACTERE;
+                return EduType.CARACTERE;
             case "cadeia":
-                return Type.CADEIA;
+                return EduType.TEXTO;
             default:
-                return Type.INVALIDO;
+                return EduType.INVALIDO;
         }
     }
 

@@ -9,7 +9,7 @@
             "name": "App",
             "request": "launch",
             "mainClass": "org.eduscript.App",
-            "projectName": "eduscript-core",
+            "projectName": "core",
             "args": "-Dmaven.test.skip=true"
         },
         {

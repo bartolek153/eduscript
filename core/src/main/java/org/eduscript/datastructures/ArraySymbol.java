@@ -3,7 +3,7 @@ package org.eduscript.datastructures;
 public class ArraySymbol extends Symbol {
     private final int length;
 
-    public ArraySymbol(String name, Type returnType, int length) {
+    public ArraySymbol(String name, EduType returnType, int length) {
         super(name, returnType);
         this.length = length;
     }

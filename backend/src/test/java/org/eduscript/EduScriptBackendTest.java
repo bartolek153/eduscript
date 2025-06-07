@@ -1,12 +1,9 @@
 package org.eduscript;
 
-import static org.junit.Assert.*;
-
-import org.junit.*;
+import org.junit.jupiter.api.Test;
 
 public class EduScriptBackendTest {
     @Test
     public void shouldAnswerWithTrue() {
-        assertTrue(true);
     }
 }

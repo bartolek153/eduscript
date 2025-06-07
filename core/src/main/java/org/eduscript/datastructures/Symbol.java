@@ -5,9 +5,9 @@ package org.eduscript.datastructures;
  */
 public abstract class Symbol {
     private final String name;
-    private final Type type;
+    private final EduType type;
 
-    public Symbol(String name, Type type) {
+    public Symbol(String name, EduType type) {
         this.name = name;
         this.type = type;
     }
@@ -16,19 +16,16 @@ public abstract class Symbol {
         return name;
     }
 
-    public Type getType() {
+    public EduType getType() {
         return type;
     }
 
-    /**
-     * Generates C code for this symbol declaration
-     */
     public abstract String generateDeclaration();
 
     /**
      * Converts EduScript type to C type
      */
-    protected String convertTypeToC(Type type) {
+    protected String convertTypeToC(EduType type) {
         switch (type) {
             case INTEIRO:
                 return "int";
@@ -38,10 +35,27 @@ public abstract class Symbol {
                 return "bool";
             case CARACTERE:
                 return "char";
-            case CADEIA:
+            case TEXTO:
                 return "char*";
             default:
                 return "void";
+        }
+    }
+
+    public static String getIrType(EduType type) {
+        switch (type) {
+            case LOGICO:
+                return "i1"; // 1 bit
+            case CARACTERE:
+                return "i8"; // 8 bits = 1 byte
+            case INTEIRO:
+                return "i32"; // 32 bits
+            case REAL:
+                return "double"; // 64 bits
+            case TEXTO:
+                return "i8*"; // char array pointer
+            default:  //TODO: create unsupported type exception
+                throw new IllegalArgumentException("Tipo não suportado: " + type);
         }
     }
 }

@@ -1,13 +1,13 @@
 package org.eduscript.semantic.exceptions;
 
-import org.eduscript.datastructures.Type;
+import org.eduscript.datastructures.EduType;
 
 public class TypeMismatchException extends SemanticException {
     
     private static final String TYPE = "TYPE MISMATCH ERROR";
 
     // Constructor for variable assignment type mismatch
-    public TypeMismatchException(String variableName, Type expected, Type actual) {
+    public TypeMismatchException(String variableName, EduType expected, EduType actual) {
         super(
             String.format("Type mismatch for variable '%s'", variableName),
             TYPE,
@@ -16,7 +16,7 @@ public class TypeMismatchException extends SemanticException {
     }
     
     // Constructor for variable assignment type mismatch with location
-    public TypeMismatchException(String variableName, Type expected, Type actual, int line, int column) {
+    public TypeMismatchException(String variableName, EduType expected, EduType actual, int line, int column) {
         super(
             String.format("Type mismatch for variable '%s'", variableName),
             TYPE,
@@ -27,7 +27,7 @@ public class TypeMismatchException extends SemanticException {
     }
     
     // Constructor for operation type mismatch (uses boolean flag to differentiate)
-    public TypeMismatchException(String operation, Type leftType, Type rightType, boolean isOperation) {
+    public TypeMismatchException(String operation, EduType leftType, EduType rightType, boolean isOperation) {
         super(
             String.format("Type mismatch in %s operation", operation),
             TYPE,
@@ -36,7 +36,7 @@ public class TypeMismatchException extends SemanticException {
     }
     
     // Constructor for operation type mismatch with location
-    public TypeMismatchException(String operation, Type leftType, Type rightType, boolean isOperation, int line, int column) {
+    public TypeMismatchException(String operation, EduType leftType, EduType rightType, boolean isOperation, int line, int column) {
         super(
             String.format("Type mismatch in %s operation", operation),
             TYPE,
@@ -47,19 +47,19 @@ public class TypeMismatchException extends SemanticException {
     }
     
     // Static factory methods for cleaner usage
-    public static TypeMismatchException forVariable(String variableName, Type expected, Type actual) {
+    public static TypeMismatchException forVariable(String variableName, EduType expected, EduType actual) {
         return new TypeMismatchException(variableName, expected, actual);
     }
     
-    public static TypeMismatchException forVariable(String variableName, Type expected, Type actual, int line, int column) {
+    public static TypeMismatchException forVariable(String variableName, EduType expected, EduType actual, int line, int column) {
         return new TypeMismatchException(variableName, expected, actual, line, column);
     }
     
-    public static TypeMismatchException forOperation(String operation, Type leftType, Type rightType) {
+    public static TypeMismatchException forOperation(String operation, EduType leftType, EduType rightType) {
         return new TypeMismatchException(operation, leftType, rightType, true);
     }
     
-    public static TypeMismatchException forOperation(String operation, Type leftType, Type rightType, int line, int column) {
+    public static TypeMismatchException forOperation(String operation, EduType leftType, EduType rightType, int line, int column) {
         return new TypeMismatchException(operation, leftType, rightType, true, line, column);
     }
 }

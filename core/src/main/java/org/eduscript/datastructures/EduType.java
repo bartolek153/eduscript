@@ -1,10 +1,10 @@
 package org.eduscript.datastructures;
 
-public enum Type {
+public enum EduType {
     INTEIRO,
     REAL,
     LOGICO,
     CARACTERE,
-    CADEIA, 
+    TEXTO, 
     INVALIDO
 }

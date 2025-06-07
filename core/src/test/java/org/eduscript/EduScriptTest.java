@@ -14,7 +14,7 @@ import main.antlr4.EduScriptLexer;
 import main.antlr4.EduScriptParser;
 
 public class EduScriptTest {
-
+    
     private SemanticAnalyzer semantic = new SemanticAnalyzer();
 
     private ParseTree getParseTree(String source) {

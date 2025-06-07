@@ -140,7 +140,7 @@ INTEGER     : 'inteiro';
 REAL_TYPE   : 'real';
 BOOLEAN     : 'logico';
 CHARACTER   : 'caractere';
-STRING_TYPE : 'cadeia';
+STRING_TYPE : 'texto';
 ARRAY       : 'array';
 FROM_OF     : 'de';
 RECORD      : 'registro';
