@@ -1,9 +1,9 @@
 package org.eduscript.services;
 
-import org.eduscript.dto.JobDto;
+import org.eduscript.model.JobMessage;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 public interface JobRequestProducer {
-    void sendMessage(JobDto job) throws JsonProcessingException;
+    void send(JobMessage job) throws JsonProcessingException;
 }

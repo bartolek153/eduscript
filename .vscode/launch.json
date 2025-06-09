@@ -6,17 +6,27 @@
     "configurations": [
         {
             "type": "java",
-            "name": "App",
+            "name": "Backend",
+            "request": "launch",
+            "mainClass": "org.eduscript.EduScriptServer",
+            "projectName": "backend",
+            "args": "-Dmaven.test.skip=true"
+        },
+        {
+            "type": "java",
+            "name": "Worker",
+            "request": "launch",
+            "mainClass": "org.eduscript.EduScriptWorker",
+            "projectName": "worker",
+            "args": "-Dmaven.test.skip=true"
+        },
+        {
+            "type": "java",
+            "name": "Core",
             "request": "launch",
             "mainClass": "org.eduscript.App",
             "projectName": "eduscript-core",
             "args": "-Dmaven.test.skip=true"
         },
-        {
-            "name": "Test",
-            "type": "",
-            "request": "launch",
-            "preLaunchTask": "Run Maven Tests",
-        }
     ]
 }

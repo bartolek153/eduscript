@@ -1,6 +1,10 @@
 package org.eduscript.controllers;
 
-import org.eduscript.dto.JobDto;
+import java.util.UUID;
+
+import org.eduscript.model.CompileRequest;
+import org.eduscript.model.CompileResponse;
+import org.eduscript.model.JobMessage;
 import org.eduscript.services.JobRequestProducer;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,19 +15,21 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 @RestController
 @RequestMapping("/api/compile")
-public class CompilerController {
+public class CompileController {
     
     private final JobRequestProducer jobRequestProducer;
 
-    public CompilerController(
+    public CompileController(
             JobRequestProducer jobRequestProducer) {
         this.jobRequestProducer = jobRequestProducer;
     }
 
-    @PostMapping
-    public ResponseEntity<?> compile(String sourceCode) throws JsonProcessingException {
-        JobDto job = new JobDto("1", sourceCode);
-        jobRequestProducer.sendMessage(job);
-        return ResponseEntity.ok().build();
+    @PostMapping("/async")
+    public ResponseEntity<CompileResponse> compile(CompileRequest req) throws JsonProcessingException {
+        JobMessage job = new JobMessage(UUID.randomUUID(), req.getSourceCode());
+        jobRequestProducer.send(job);
+
+        CompileResponse res = new CompileResponse(job);
+        return ResponseEntity.ok(res);
     }
 }

@@ -1,8 +1,8 @@
 package org.eduscript;
 
-import org.junit.jupiter.api.Test;
+import org.junit.*;
 
-public class EduScriptBackendTest {
+public class AppTest {
     @Test
     public void shouldAnswerWithTrue() {
     }

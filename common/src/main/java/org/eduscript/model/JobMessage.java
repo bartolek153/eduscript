@@ -1,19 +1,24 @@
-package org.eduscript.dto;
+package org.eduscript.model;
 
-public class JobDto {
-    private String id;
+import java.util.UUID;
+
+public class JobMessage {
+    private UUID id;
     private String sourceCode;
 
-    public JobDto(String id, String sourceCode) {
+    public JobMessage() {
+    }
+
+    public JobMessage(UUID id, String sourceCode) {
         this.id = id;
         this.sourceCode = sourceCode;
     }
 
-    public String getId() {
+    public UUID getId() {
         return this.id;
     }
 
-    public void setId(String id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
