@@ -9,3 +9,7 @@ app:
     topics: 
       jobs: jobs
       logs: logs
+  logger:
+    batch-size: 20
+    flush-interval-ms: 2000
+    use-formatter: true

@@ -54,6 +54,13 @@ public class Logger {
         handlers.add(handler);
     }
 
+    public static void clearHandlers() {
+        for (LogHandler hdl : handlers)
+            hdl.stop();
+            
+        handlers.clear();
+    }
+
     public static void enableVerbose(boolean enabled) {
         verbose = enabled;
     }

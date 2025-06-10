@@ -9,28 +9,39 @@ import java.util.concurrent.Executors;
 
 import org.eduscript.logging.LogHandler;
 import org.eduscript.logging.Logger;
-import org.eduscript.model.LogEntry;;
+import org.eduscript.model.LogEntry;
+import org.eduscript.services.LogOutputProducer;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
 
 // inspired by: 
 // https://github.com/loki4j/loki-logback-appender/blob/main/loki-client/src/main/java/com/github/loki4j/client/pipeline/AsyncBufferPipeline.java
 // and 
 // https://gist.github.com/nehaev/83a5332d429e3f390f0fba740157509a
 
-public class AsyncLogger implements LogHandler {
+@Component
+@ConfigurationProperties(prefix = "app.logger")
+public class AsyncLoggerFlusher implements LogHandler {
 
     private final Queue<LogEntry> buffer = new ConcurrentLinkedQueue<>();
     private final int batchSize;
     private final long flushIntervalMs;
     private final boolean useFormatter;
+    private final LogOutputProducer logOutputProducer;
 
     private final ExecutorService executor;
     private volatile boolean running = false;
 
-    public AsyncLogger(int batchSize, long flushIntervalMs, boolean useFormatter) {
+    public AsyncLoggerFlusher(
+            int batchSize, 
+            long flushIntervalMs, 
+            boolean useFormatter,
+            LogOutputProducer logOutputProducer) {
         this.batchSize = batchSize;
         this.flushIntervalMs = flushIntervalMs;
         this.useFormatter = useFormatter;
         this.executor = Executors.newSingleThreadExecutor();
+        this.logOutputProducer = logOutputProducer;
     }
 
     public void start() {
@@ -64,9 +75,9 @@ public class AsyncLogger implements LogHandler {
                     }
                 }
 
-                if (System.currentTimeMillis() - startTime > flushIntervalMs) {
-                    System.out.println("up");
-                }
+                // if (System.currentTimeMillis() - startTime > flushIntervalMs) {
+                //     System.out.println("up");
+                // }
 
                 sendBatch(batch);
 
@@ -91,6 +102,7 @@ public class AsyncLogger implements LogHandler {
             for (LogEntry entry : batch) {
                 String output = useFormatter ? Logger.formatEntry(entry) : rawLog(entry);
                 System.out.println("[ASYNC] " + output);
+                logOutputProducer.send(entry);
             }
         }
     }
