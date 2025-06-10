@@ -13,7 +13,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 
 @Configuration
-public class KafkaProducerConfiguration {
+public class KafkaProducerConfig {
 
     @Value("${app.kafka.topics.logs}")
     private String logOutputTopic;
