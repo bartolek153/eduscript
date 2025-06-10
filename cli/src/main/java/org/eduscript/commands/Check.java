@@ -10,9 +10,9 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.eduscript.logging.Logger;
 import org.eduscript.parser.SyntaxErrorListener;
 import org.eduscript.semantic.SemanticAnalyzer;
-import org.eduscript.utils.Logger;
 
 import main.antlr4.EduScriptLexer;
 import main.antlr4.EduScriptParser;

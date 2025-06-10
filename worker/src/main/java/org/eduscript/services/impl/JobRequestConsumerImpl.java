@@ -1,6 +1,7 @@
 package org.eduscript.services.impl;
 
 import org.eduscript.model.JobMessage;
+import org.eduscript.services.CompileService;
 import org.eduscript.services.JobRequestConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,11 +13,19 @@ public class JobRequestConsumerImpl implements JobRequestConsumer {
 
     private final Logger logger = LoggerFactory.getLogger(JobRequestConsumerImpl.class);
 
+    private final CompileService compileService;
+
+    public JobRequestConsumerImpl(CompileService compileService) {
+        this.compileService = compileService;
+    }
+
     @Override
     @KafkaListener(topics = "${app.kafka.topics.jobs}", groupId = "${spring.kafka.consumer.group-id}")
     public void listen(JobMessage job) {
-        logger.warn("source: {} | id: {}",
+        logger.warn("Compiling source: {} | id: {}",
                 job.getId().toString(),
                 job.getSourceCode());
+
+        compileService.compile(job);
     }
 }

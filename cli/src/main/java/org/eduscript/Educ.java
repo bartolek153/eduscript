@@ -5,7 +5,7 @@ import java.util.concurrent.Callable;
 import org.eduscript.commands.Check;
 import org.eduscript.commands.Compile;
 import org.eduscript.commands.Run;
-import org.eduscript.utils.Logger;
+import org.eduscript.logging.Logger;
 
 import picocli.CommandLine;
 import picocli.CommandLine.Command;

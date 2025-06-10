@@ -17,38 +17,51 @@ import org.springframework.kafka.core.ProducerFactory;
 @Configuration
 public class KafkaProducerConfiguration {
 
-    @Value("${app.kafka.topics.jobs}")
-    private String jobRequestsTopic;
+  @Value("${app.kafka.topics.jobs}")
+  private String jobRequestsTopic;
 
-    @Value(value = "${spring.kafka.bootstrap-servers}")
-    private String bootstrapAddress;
+  @Value("${app.kafka.topics.logs}")
+  private String logOutputTopic;
 
-    @Bean
-    ProducerFactory<String, String> producerFactory() {
-        Map<String, Object> configProps = new HashMap<>();
-        configProps.put(
-          ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, 
-          bootstrapAddress);
-        configProps.put(
-          ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, 
-          StringSerializer.class);
-        configProps.put(
-          ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, 
-          StringSerializer.class);
-        return new DefaultKafkaProducerFactory<>(configProps);
-    }
+  @Value(value = "${spring.kafka.bootstrap-servers}")
+  private String bootstrapAddress;
 
-    @Bean
-    KafkaTemplate<String, String> kafkaTemplate() {
-        return new KafkaTemplate<>(producerFactory());
-    }
+  @Bean
+  ProducerFactory<String, String> producerFactory() {
+    Map<String, Object> configProps = new HashMap<>();
+    configProps.put(
+        ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
+        bootstrapAddress);
+    configProps.put(
+        ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
+        StringSerializer.class);
+    configProps.put(
+        ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
+        StringSerializer.class);
+    return new DefaultKafkaProducerFactory<>(configProps);
+  }
 
-    @Bean
-    NewTopic jobMessageTopicBuilder() {
-        return TopicBuilder
-                .name(jobRequestsTopic)
-                .partitions(3)
-                .replicas(1)
-                .build();
-    }
+  @Bean
+  KafkaTemplate<String, String> kafkaTemplate() {
+    return new KafkaTemplate<>(producerFactory());
+  }
+
+  @Bean
+  NewTopic jobMessageTopicBuilder() {
+    return TopicBuilder
+        .name(jobRequestsTopic)
+        .partitions(1)
+        .replicas(1)
+        .build();
+  }
+
+  @Bean
+  NewTopic logMessageTopicBuilder() {
+    return TopicBuilder
+        .name(
+            logOutputTopic)
+        .partitions(1)
+        .replicas(1)
+        .build();
+  }
 }

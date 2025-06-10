@@ -2,7 +2,7 @@ package org.eduscript.exec;
 
 import java.io.*;
 
-import org.eduscript.utils.Logger;
+import org.eduscript.logging.Logger;
 
 public class CRunner extends Runner {
 

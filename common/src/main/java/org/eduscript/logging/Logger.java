@@ -1,15 +1,13 @@
-package org.eduscript.utils;
+package org.eduscript.logging;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
+
+import org.eduscript.model.LogEntry;
 
 public class Logger {
 
     private static boolean verbose = true;
     private static boolean debugMode = false;
-    private static final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
 
     // ANSI Colors
     private static final String RESET = "\u001B[0m";
@@ -31,39 +29,29 @@ public class Logger {
     private static final String MIDDLE_LEFT = "├";
     private static final String MIDDLE_RIGHT = "┤";
 
-    // Internal buffer
-    private static final List<LogEntry> logBuffer = new ArrayList<>();
+    public static String formatEntry(LogEntry entry) {
+        String ts = "[" + entry.timeKey() + "]";
+        String jobPrefix = (entry.getJobId() != null) ? "[Job " + entry.getJobId().substring(0, 8) + "] " : "";
+        String message = jobPrefix + entry.getMessage();
 
-    private static class LogEntry {
-        final LocalDateTime timestamp;
-        final String level;
-        final String message;
+        return switch (entry.getLevel()) {
+            case "EXTERN" -> BLUE + "🔹 " + message + RESET;
+            case "INFO" -> CYAN + ts + " ℹ️  " + message + RESET;
+            case "ERROR" -> BOLD + RED + ts + " ❌ " + message + RESET;
+            case "SUCCESS" -> BOLD + GREEN + ts + " ✅ " + message + RESET;
+            case "WARNING" -> BOLD + YELLOW + ts + " ⚠️  " + message + RESET;
+            case "DEBUG" -> MAGENTA + ts + " 🐞 " + message + RESET;
+            case "STEP" -> MAGENTA + ts + " → " + message + RESET;
+            case "STATS" -> YELLOW + "📊 " + message + RESET;
+            case "FILE" -> CYAN + "📄 " + message + RESET;
+            default -> message;
+        };
+    }
 
-        LogEntry(String level, String message) {
-            this.timestamp = LocalDateTime.now();
-            this.level = level;
-            this.message = message;
-        }
+    private static final List<LogHandler> handlers = new ArrayList<>();
 
-        String formatted() {
-            String ts = "[" + timestamp.format(timeFormatter) + "]";
-            return switch (level) {
-                case "EXTERN" -> BLUE + "🔹 " + message + RESET;
-                case "INFO" -> CYAN + ts + " ℹ️  " + message + RESET;
-                case "ERROR" -> BOLD + RED + ts + " ❌ " + message + RESET;
-                case "SUCCESS" -> BOLD + GREEN + ts + " ✅ " + message + RESET;
-                case "WARNING" -> BOLD + YELLOW + ts + " ⚠️  " + message + RESET;
-                case "DEBUG" -> MAGENTA + ts + " 🐞 " + message + RESET;
-                case "STEP" -> MAGENTA + ts + " → " + message + RESET;
-                case "STATS" -> YELLOW + "📊 " + message + RESET;
-                case "FILE" -> CYAN + "📄 " + message + RESET;
-                default -> message;
-            };
-        }
-
-        String timeKey() {
-            return timestamp.format(timeFormatter);
-        }
+    public static void addHandler(LogHandler handler) {
+        handlers.add(handler);
     }
 
     public static void enableVerbose(boolean enabled) {
@@ -74,53 +62,98 @@ public class Logger {
         debugMode = enabled;
     }
 
-    private static void record(String level, String message) {
-        LogEntry entry = new LogEntry(level, message);
-            logBuffer.add(entry);
-        
-        System.out.println(entry.formatted());
+    // private static void record(String level, String message) {
+    //     record(level, message, null);
+    // }
+
+    private static void record(String level, String message, String jobId) {
+        LogEntry entry = new LogEntry(level, message, jobId);
+        for (LogHandler handler : handlers) {
+            handler.handle(entry);
+        }
+        // System.out.println(formatEntry(entry));
     }
 
     public static void printExtern(String message) {
-        record("EXTERN", message);
+        printExtern(message, null);
+    }
+
+    public static void printExtern(String message, String jobId) {
+        record("EXTERN", message, jobId);
     }
 
     public static void printSuccess(String message) {
-        record("SUCCESS", message);
+        printSuccess(message, null);
+    }
+
+    public static void printSuccess(String message, String jobId) {
+        record("SUCCESS", message, jobId);
     }
 
     public static void printInfo(String message) {
+        printInfo(message, null);
+    }
+
+    public static void printInfo(String message, String jobId) {
         if (verbose)
-            record("INFO", message);
+            record("INFO", message, jobId);
     }
 
     public static void printWarning(String message) {
-        record("WARNING", message);
+        printWarning(message, null);
+    }
+
+    public static void printWarning(String message, String jobId) {
+        record("WARNING", message, jobId);
     }
 
     public static void printError(String message) {
-        record("ERROR", message);
+        printError(message, null);
+    }
+
+    public static void printError(String message, String jobId) {
+        record("ERROR", message, jobId);
     }
 
     public static void printDebug(String message) {
+        printDebug(message, null);
+    }
+
+    public static void printDebug(String message, String jobId) {
         if (debugMode)
-            record("DEBUG", message);
+            record("DEBUG", message, jobId);
     }
 
     public static void printStep(String step) {
-        record("STEP", step);
+        printStep(step, null);
+    }
+
+    public static void printStep(String step, String jobId) {
+        if (verbose)
+            record("STEP", step, jobId);
     }
 
     public static void printStats(String label, String value) {
-        record("STATS", label + ": " + BOLD + value);
+        printStats(label, value, null);
+    }
+
+    public static void printStats(String label, String value, String jobId) {
+        if (verbose)
+            record("STATS", label + ": " + BOLD + value, jobId);
     }
 
     public static void printFileInfo(String action, String filename) {
-        record("FILE", action + ": " + BOLD + filename);
+        printFileInfo(action, filename, null);
+    }
+
+    public static void printFileInfo(String action, String filename, String jobId) {
+        if (verbose)
+            record("FILE", action + ": " + BOLD + filename, jobId);
     }
 
     public static void printSeparator() {
-        System.out.println(CYAN + HORIZONTAL.repeat(60) + RESET);
+        if (verbose)
+            System.out.println(CYAN + HORIZONTAL.repeat(60) + RESET);
     }
 
     public static void printHeader(String title) {
@@ -134,8 +167,10 @@ public class Logger {
     }
 
     public static void printPhase(String phase) {
-        System.out.println(BOLD + BLUE + "\n🔄 " + phase + RESET);
-        System.out.println(BLUE + "   " + HORIZONTAL.repeat(phase.length() + 2) + RESET);
+        if (verbose) {
+            System.out.println(BOLD + BLUE + "\n🔄 " + phase + RESET);
+            System.out.println(BLUE + "   " + HORIZONTAL.repeat(phase.length() + 2) + RESET);
+        }
     }
 
     public static void printBox(String title, String content) {
