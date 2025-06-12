@@ -1,4 +1,12 @@
 services:
+  cache:
+    image: redis:8.0.2
+    container_name: cache
+    networks: 
+      - backend
+    ports:
+      - 6379:6379
+
   broker-ui:
     image: tchiotludo/akhq:0.25.1
     container_name: akhq
