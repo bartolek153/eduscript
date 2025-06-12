@@ -9,3 +9,6 @@
 * ANTLR4 Grammar
 * Javadoc
 * Maven modules
+* Kafka
+* STOMP (ws)
+* Redis

@@ -20,8 +20,8 @@ public class JobRequestConsumerImpl implements JobRequestConsumer {
     }
 
     @Override
-    @KafkaListener(topics = "${app.kafka.topics.jobs}", groupId = "${spring.kafka.consumer.group-id}")
-    public void listen(JobMessage job) {
+    @KafkaListener(topics = "${app.kafka.topics.jobs}")
+    public void consume(JobMessage job) {
         logger.warn("Compiling source: {} | id: {}",
                 job.getId().toString(),
                 job.getSourceCode());
