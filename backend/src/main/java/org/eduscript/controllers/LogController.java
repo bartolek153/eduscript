@@ -7,10 +7,4 @@ import org.springframework.stereotype.Controller;
 
 @Controller
 public class LogController {
-
-    @MessageMapping("/whoami")
-    @SendToUser("/info/session")
-    public String getSessionId(@Header("simpSessionId") String sessionId) {
-        return sessionId;
-    }
 }

@@ -2,10 +2,10 @@ package org.eduscript.repositories;
 
 import java.util.UUID;
 
-import org.eduscript.model.User;
+import org.eduscript.model.UserSession;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface UserRepository extends CrudRepository<User, UUID> {
+public interface UserSessionRepository extends CrudRepository<UserSession, UUID> {
 }

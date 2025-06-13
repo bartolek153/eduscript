@@ -1,8 +1,8 @@
 spring:
-  redis:
-    host: localhost
-    port: 6379
-    type: redis
+  data:
+    redis:
+      host: localhost
+      port: 6379
     
   kafka:
     bootstrap-servers: localhost:9092
@@ -21,6 +21,8 @@ springdoc:
     tags-sorter: alpha
 
 app:
+  constants:
+    user-id-attribute: userId
   kafka:
     topics: 
       jobs: jobs

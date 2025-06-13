@@ -9,7 +9,7 @@ public class LogEntry {
     private final LocalDateTime timestamp;
     private final String level;
     private final String message;
-    private final String jobId;
+    private final String jobId;  // TODO: convert to UUID?
 
     public LogEntry(String level, String message, String jobId) {
         this.timestamp = LocalDateTime.now();

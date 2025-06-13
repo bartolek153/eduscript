@@ -5,24 +5,23 @@ import java.util.UUID;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
-@RedisHash("user")
-public class User {
+@RedisHash(value = "user_sessions", timeToLive = 3600)
+public class UserSession {
     @Id
     private UUID userId;
     private UUID instanceId;
     private UUID sessionId;
-    private UUID runningJobId;
 
-    public User() {
+    public UserSession() {
     }
 
-    public User(
+    public UserSession(
+            UUID userId,
             UUID instanceId, 
-            UUID sessionId,
-            UUID runningJobId) {
+            UUID sessionId) {
+        this.userId = userId;
         this.instanceId = instanceId;
         this.sessionId = sessionId;
-        this.runningJobId = runningJobId;
     }
 
     public UUID getUserId() {
@@ -47,13 +46,5 @@ public class User {
 
     public void setSessionId(UUID sessionId) {
         this.sessionId = sessionId;
-    }
-
-    public UUID getRunningJobId() {
-        return runningJobId;
-    }
-
-    public void setRunningJobId(UUID runningJobId) {
-        this.runningJobId = runningJobId;
     }
 }

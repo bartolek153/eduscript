@@ -1,4 +1,4 @@
-package org.eduscript.configs;
+package org.eduscript.configs.broker;
 
 import java.util.HashMap;
 import java.util.Map;
