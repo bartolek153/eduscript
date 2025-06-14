@@ -4,21 +4,19 @@ package org.eduscript.grpc;
 import java.util.UUID;
 
 import org.eduscript.configs.grpc.HeaderInterceptor;
-import org.eduscript.grpc.CompileServiceGrpc.CompileServiceImplBase;
+import org.eduscript.grpc.CompileServiceGrpc;
 import org.eduscript.model.JobMessage;
 import org.eduscript.model.JobSession;
 import org.eduscript.repositories.JobSessionRepository;
 import org.eduscript.services.JobRequestProducer;
-import org.springframework.grpc.server.service.GrpcService;
-import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import io.grpc.stub.StreamObserver;
+import net.devh.boot.grpc.server.service.GrpcService;
 
-// @GrpcService
-@Service
-public class GrpcServerService extends CompileServiceImplBase {
+@GrpcService
+public class GrpcServerService extends CompileServiceGrpc.CompileServiceImplBase {
 
     private final JobRequestProducer jobRequestProducer;
     private final JobSessionRepository jobSessionRepository;
