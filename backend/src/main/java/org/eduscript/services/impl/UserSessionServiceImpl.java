@@ -9,7 +9,7 @@ import org.eduscript.model.UserSession;
 import org.eduscript.repositories.JobSessionRepository;
 import org.eduscript.repositories.UserSessionRepository;
 import org.eduscript.services.UserSessionService;
-import org.eduscript.utils.InstanceIdentificator;
+import org.eduscript.utils.InstanceRegistration;
 import org.eduscript.utils.Utils;
 import org.springframework.stereotype.Service;
 
@@ -38,7 +38,7 @@ public class UserSessionServiceImpl implements UserSessionService {
         userSessionRepository.save(
                 new UserSession(
                         userId,
-                        InstanceIdentificator.getId(),
+                        InstanceRegistration.getId(),
                         sessionId));
 
         return userId;
