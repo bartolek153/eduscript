@@ -1,7 +1,9 @@
-server:
-  port: 8080
-
 spring:
+  grpc:
+    server:
+      port: 9090
+      reflection:
+        enabled: true
   data:
     redis:
       host: localhost
@@ -11,17 +13,6 @@ spring:
     bootstrap-servers: localhost:9092
     consumer:
       group-id: backend-group
-
-springdoc:
-  api-docs:
-    path: /api-docs
-  show-actuator: true
-  cache:
-    disabled: true
-  swagger-ui:
-    doc-expansion: none
-    operations-sorter: alpha
-    tags-sorter: alpha
 
 app:
   constants:

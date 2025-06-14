@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "org.eduscript.grpc";
+option java_outer_classname = "MessageForwarderProto";
+
+service MessageForwarder {
+    rpc Forward (ForwardRequest) returns (ForwardResponse);
+}
+
+message ForwardRequest {
+    string source_code = 1;
+}
+
+message ForwardResponse {
+    string job_id = 1;
+}

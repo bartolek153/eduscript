@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "org.eduscript.grpc";
+option java_outer_classname = "CompilerProto";
+
+service CompileService {
+    rpc CompileCode (CompileRequest) returns (CompileResponse);
+}
+
+message CompileRequest {
+    string source_code = 1;
+}
+
+message CompileResponse {
+    string job_id = 1;
+}

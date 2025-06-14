@@ -16,7 +16,7 @@ public class InstanceRegistration {
 
     private final RedisTemplate<String, Object> redisTemplate;
 
-    @Value("${server.port}")
+    @Value("${spring.grpc.server.port}")
     private int port;
 
     private static UUID id;
