@@ -11,6 +11,7 @@ import org.eduscript.services.JobRequestProducer;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -32,7 +33,7 @@ public class CompileController {
     @PostMapping("/async")
     public ResponseEntity<CompileResponse> compile(
             @CookieValue("${app.constants.user-id-attribute}") UUID userId,
-            CompileRequest req) throws JsonProcessingException {
+            @RequestBody CompileRequest req) throws JsonProcessingException {
 
         JobMessage job = new JobMessage(UUID.randomUUID(), req.getSourceCode());
         

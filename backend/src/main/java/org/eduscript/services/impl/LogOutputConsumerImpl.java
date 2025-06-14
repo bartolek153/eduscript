@@ -33,7 +33,7 @@ public class LogOutputConsumerImpl implements LogOutputConsumer {
         UUID jobId = Utils.uuidToStr(log.getJobId());
         jobSessionRepository.findById(jobId).ifPresentOrElse((JobSession js) -> {
             simpMessagingTemplate.convertAndSendToUser(js.getUserId().toString(), "/topic/logs", log);
-        }, () -> {
+        }, () -> {  
             logger.error(
                     "Received log with inexistent job id {}. Could not proceed to get corresponding client",
                     jobId);
