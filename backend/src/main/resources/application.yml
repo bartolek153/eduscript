@@ -1,16 +1,16 @@
+grpc:
+  server:
+    port: 9090
+
 spring:
-  grpc:
-    server:
-      port: 9090
-      reflection:
-        enabled: true
   data:
     redis:
-      host: localhost
+      # host: cache
       port: 6379
     
   kafka:
     bootstrap-servers: localhost:9092
+    # bootstrap-servers: broker:29092
     consumer:
       group-id: backend-group
 

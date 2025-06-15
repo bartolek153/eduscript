@@ -1,9 +1,11 @@
-package org.eduscript.grpc;
+package org.eduscript.services.impl;
 
 
 import java.util.UUID;
 
-import org.eduscript.configs.grpc.HeaderInterceptor;
+import org.eduscript.configs.grpc.UserAuthHeaderInterceptor;
+import org.eduscript.grpc.CompileRequest;
+import org.eduscript.grpc.CompileResponse;
 import org.eduscript.grpc.CompileServiceGrpc;
 import org.eduscript.model.JobMessage;
 import org.eduscript.model.JobSession;
@@ -16,12 +18,12 @@ import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
 
 @GrpcService
-public class GrpcServerService extends CompileServiceGrpc.CompileServiceImplBase {
+public class CompileServiceImpl extends CompileServiceGrpc.CompileServiceImplBase {
 
     private final JobRequestProducer jobRequestProducer;
     private final JobSessionRepository jobSessionRepository;
 
-    public GrpcServerService(
+    public CompileServiceImpl(
             JobRequestProducer jobRequestProducer,
             JobSessionRepository jobSessionRepository) {
         this.jobRequestProducer = jobRequestProducer;
@@ -48,6 +50,7 @@ public class GrpcServerService extends CompileServiceGrpc.CompileServiceImplBase
     }
 
     private UUID getUserId() {
-        return (UUID) HeaderInterceptor.USER_IDENTITY.get();
+        String id = (String) UserAuthHeaderInterceptor.USER_IDENTITY.get();
+        return UUID.fromString(id);
     }
 }
