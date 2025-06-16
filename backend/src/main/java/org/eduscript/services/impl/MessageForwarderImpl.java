@@ -2,14 +2,11 @@ package org.eduscript.services.impl;
 
 import java.util.Map;
 
-import org.eduscript.configs.grpc.GrpcStubFactory;
 import org.eduscript.grpc.MessageForwarderGrpc;
-import org.eduscript.grpc.MessageForwarderGrpc.MessageForwarderBlockingStub;
 import org.eduscript.grpc.ProtoLogEntry;
 import org.eduscript.utils.AppConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import com.google.protobuf.Empty;
@@ -24,9 +21,6 @@ public class MessageForwarderImpl extends MessageForwarderGrpc.MessageForwarderI
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final Logger logger = LoggerFactory.getLogger(MessageForwarderImpl.class);
 
-    @Autowired
-    private GrpcStubFactory<MessageForwarderBlockingStub> grpcStubFactory;
-    
     public MessageForwarderImpl(SimpMessagingTemplate simpMessagingTemplate) {
         this.simpMessagingTemplate = simpMessagingTemplate;
     }

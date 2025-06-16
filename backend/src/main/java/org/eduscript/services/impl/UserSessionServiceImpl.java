@@ -4,9 +4,7 @@ import java.security.Principal;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.eduscript.model.JobSession;
 import org.eduscript.model.UserSession;
-import org.eduscript.repositories.JobSessionRepository;
 import org.eduscript.repositories.UserSessionRepository;
 import org.eduscript.services.UserSessionService;
 import org.eduscript.utils.InstanceRegistration;
@@ -17,13 +15,10 @@ import org.springframework.stereotype.Service;
 public class UserSessionServiceImpl implements UserSessionService {
 
     private final UserSessionRepository userSessionRepository;
-    private final JobSessionRepository jobSessionRepository;
 
     public UserSessionServiceImpl(
-            UserSessionRepository userSessionRepository,
-            JobSessionRepository jobSessionRepository) {
+            UserSessionRepository userSessionRepository) {
         this.userSessionRepository = userSessionRepository;
-        this.jobSessionRepository = jobSessionRepository;
     }
 
     @Override
@@ -42,14 +37,6 @@ public class UserSessionServiceImpl implements UserSessionService {
                         sessionId));
 
         return userId;
-    }
-
-    @Override
-    public void assignRunningJob(Principal user, UUID jobId) {
-        UUID userId = getUserId(user);
-
-        jobSessionRepository.save(
-                new JobSession(jobId, userId));
     }
 
     private UUID getUserId(Principal user) {

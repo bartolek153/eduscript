@@ -19,7 +19,7 @@
 
 * [x] Setup gRPC
 * [x] Receive `job` requests with gRPC
-* [ ] Handle anonymous user auth (header - random user ID)
+* [x] Handle anonymous user auth (header - random user ID)
 
 * [x] Setup Kafka
 * [x] Implement backend `job` producer
@@ -38,7 +38,7 @@
 * [x] Implement message forwarding in backend with gRPC (replicas -> correct user session connection)
 * [ ] Create `log` (in-memory/DLQ ?) buffer for retries (reconnections)
 * [ ] Handle `job` cancellation with redis flag
-* [ ] Set redis TTL handling
+* [ ] Add redis TTL handlers (where needed)
 * [ ] Add deduplication lock
 * [ ] Implement backpressure support (buffer filling?)
 
@@ -84,6 +84,7 @@
 * [ ] Setup Helm
 * [ ] Build DevContainer setup or Docker Compose for contributors
 * [ ] Add Terraform script for provisioning optional cloud infra (bonus points)
+* [ ] Split `job` topics in `job-requests`, `job-events`, `job-logs` and `job-results`
 
 ### Documentation
 

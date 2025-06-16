@@ -2,7 +2,7 @@ package org.eduscript.controllers;
 
 import java.util.UUID;
 
-import org.eduscript.repositories.JobSessionRepository;
+import org.eduscript.repositories.JobMetadataRepository;
 import org.eduscript.services.JobRequestProducer;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -17,12 +17,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 public class CompileController {
 
     private final JobRequestProducer jobRequestProducer;
-    private final JobSessionRepository jobSessionRepository;
+    private final JobMetadataRepository jobMetadataRepository;
 
     public CompileController(
-            JobRequestProducer jobRequestProducer, JobSessionRepository jobSessionRepository) {
+            JobRequestProducer jobRequestProducer, JobMetadataRepository jobMetadataRepository) {
         this.jobRequestProducer = jobRequestProducer;
-        this.jobSessionRepository = jobSessionRepository;
+        this.jobMetadataRepository = jobMetadataRepository;
     }
 
     @PostMapping("/async")

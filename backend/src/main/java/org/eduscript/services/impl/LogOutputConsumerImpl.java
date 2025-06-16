@@ -7,11 +7,11 @@ import org.eduscript.exceptions.UserNotFoundException;
 import org.eduscript.grpc.MessageForwarderGrpc.MessageForwarderBlockingStub;
 import org.eduscript.grpc.ProtoLogEntry;
 import org.eduscript.model.Instance;
-import org.eduscript.model.JobSession;
+import org.eduscript.model.JobMetadata;
 import org.eduscript.model.LogEntry;
 import org.eduscript.model.UserSession;
 import org.eduscript.repositories.InstanceRepository;
-import org.eduscript.repositories.JobSessionRepository;
+import org.eduscript.repositories.JobMetadataRepository;
 import org.eduscript.services.LogOutputConsumer;
 import org.eduscript.services.UserSessionService;
 import org.eduscript.utils.AppConstants;
@@ -31,7 +31,7 @@ public class LogOutputConsumerImpl implements LogOutputConsumer {
     private static final Logger logger = LoggerFactory.getLogger(LogOutputConsumerImpl.class);
 
     private final SimpMessagingTemplate simpMessagingTemplate;
-    private final JobSessionRepository jobSessionRepository;
+    private final JobMetadataRepository jobMetadataRepository;
     private final InstanceRepository instanceRepository;
     private final UserSessionService userSessionService;
     private final GrpcStubFactory<MessageForwarderBlockingStub> grpcStubFactory;
@@ -39,11 +39,11 @@ public class LogOutputConsumerImpl implements LogOutputConsumer {
     public LogOutputConsumerImpl(
             SimpMessagingTemplate simpMessagingTemplate,
             UserSessionService userSessionService,
-            JobSessionRepository jobSessionRepository,
+            JobMetadataRepository jobMetadataRepository,
             GrpcStubFactory<MessageForwarderBlockingStub> grpcStubFactory,
             InstanceRepository instanceRepository) {
         this.simpMessagingTemplate = simpMessagingTemplate;
-        this.jobSessionRepository = jobSessionRepository;
+        this.jobMetadataRepository = jobMetadataRepository;
         this.instanceRepository = instanceRepository;
         this.userSessionService = userSessionService;
         this.grpcStubFactory = grpcStubFactory;
@@ -54,14 +54,14 @@ public class LogOutputConsumerImpl implements LogOutputConsumer {
     public void consume(LogEntry log) {
         UUID jobId = Utils.uuidToStr(log.getJobId());
 
-        jobSessionRepository.findById(jobId).ifPresentOrElse(
+        jobMetadataRepository.findById(jobId).ifPresentOrElse(
                 jobSession -> handleLog(log, jobSession),
                 () -> logger.error(
                         "Received log with inexistent job id {}. Could not proceed to get corresponding client",
                         jobId));
     }
 
-    private void handleLog(LogEntry log, JobSession jobSession) {
+    private void handleLog(LogEntry log, JobMetadata jobSession) {
         UserSession userSession = userSessionService.getUser(jobSession.getUserId())
                 .orElseThrow(() -> new UserNotFoundException(jobSession.getUserId()));
 
@@ -76,14 +76,14 @@ public class LogOutputConsumerImpl implements LogOutputConsumer {
         return userSession.getInstanceId().equals(InstanceRegistration.getId());
     }
 
-    private void sendLogToLocalUser(JobSession jobSession, LogEntry log) {
+    private void sendLogToLocalUser(JobMetadata jobSession, LogEntry log) {
         simpMessagingTemplate.convertAndSendToUser(
                 jobSession.getUserId().toString(),
                 AppConstants.Routes.WS_LOG_ROUTE,
                 log);
     }
 
-    private void forwardLogToInstance(UserSession userSession, LogEntry log, JobSession jobSession) {
+    private void forwardLogToInstance(UserSession userSession, LogEntry log, JobMetadata jobSession) {
         Instance targetInstance = instanceRepository.findById(userSession.getInstanceId())
                 .orElseThrow(() -> new IllegalStateException("Instance not found: " + userSession.getInstanceId()));
 
