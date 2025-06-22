@@ -89,7 +89,7 @@ public class App
         parser.addErrorListener(errorListener);
 
         Logger.printStep("parsing source code");
-        ParseTree tree = parser.program();
+        ParseTree tree = parser.pipeline();
 
         if (errorListener.hasError()) {
             Logger.printError("syntax analysis failed");
