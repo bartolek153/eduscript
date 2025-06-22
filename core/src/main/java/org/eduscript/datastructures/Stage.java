@@ -6,12 +6,13 @@ import java.util.List;
 public class Stage {
     private String name;
     private String image;
-    private List<String> runCommands = new ArrayList<>(); // multiline string
+    private List<String> runCommands = new ArrayList<>();
     private StageConfigs config;
-    private List<String> deps = new ArrayList<>(); // <- adicione isso para dependências
+    private List<String> deps = new ArrayList<>();
 
     public Stage(String name) {
         this.name = name;
+        this.config = new StageConfigs();
     }
 
     public String getName() {

@@ -107,10 +107,13 @@ public class SemanticAnalyzer extends EduScriptBaseVisitor<Void> {
         Stage stage = new Stage(extractValue(ctx.value()));
 
         for (var item : ctx.stageBody().children) {
+
             if (item instanceof EduScriptParser.ImageBlockContext imageCtx) {
                 stage.setImage(extractImage(imageCtx));
+
             } else if (item instanceof EduScriptParser.RunBlockContext runCtx) {
                 stage.addRunCommand(extractRun(runCtx));
+
             } else if (item instanceof EduScriptParser.NeedsBlockContext needsCtx) {
                 if (stage.hasDeps()) {
                     errorHandler.reportError(
@@ -121,9 +124,9 @@ public class SemanticAnalyzer extends EduScriptBaseVisitor<Void> {
                     );
                     continue;
                 }
-
                 List<String> deps = extractValueList(needsCtx.stringList());
                 stage.getDeps().addAll(deps);
+
             } else if (item instanceof EduScriptParser.ConfigBlockContext configCtx) {
                 if (stage.getConfig() != null) {
                     errorHandler.reportError(
