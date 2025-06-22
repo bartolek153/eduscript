@@ -47,19 +47,7 @@ public class App
         } else {
             Logger.printInfo("Using default test program");
             source = """
-                programa SimpleTest;
-
-                    var x: inteiro;
-                    var y: inteiro;
-                    
-                    inicio
-                        x = 10;
-                        y = 20;
-                        escrever("Hello from EduScript!");
-                        escrever("x = ", x);
-                        escrever("y = ", y);
-                        escrever("x + y = ", x + y);
-                    fimprograma
+                
 
                 """;
         }
