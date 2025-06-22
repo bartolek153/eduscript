@@ -9,7 +9,6 @@
   </properties>
   <modules>
     <module>core</module>
-    <module>cli</module>
     <module>backend</module>
     <module>worker</module>
     <module>common</module>
