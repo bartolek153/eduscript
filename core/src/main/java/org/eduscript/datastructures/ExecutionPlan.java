@@ -1,18 +1,24 @@
 package org.eduscript.datastructures;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
+import org.eduscript.exceptions.NullStageException;
+
 public class ExecutionPlan {
-    private final Map<String, Stage> stages = new HashMap<>();
-    private final Map<String, List<String>> edges = new HashMap<>();
-    private final Map<String, Integer> inDegrees = new HashMap<>();
+    private final Map<String, Stage> stages = new LinkedHashMap<>(); // linked hash map to keep sorted if no deps specified
+    private final Map<String, List<String>> edges = new LinkedHashMap<>();
+    private final Map<String, Integer> inDegrees = new LinkedHashMap<>();
 
     public void addStage(Stage stage) {
+        if (stage == null) {
+            throw new NullStageException();
+        }
+        
         String name = stage.getName();
         if (stages.containsKey(name)) {
             // TODO: error duplicate stage

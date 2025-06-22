@@ -1,6 +1,7 @@
 package org.eduscript.semantic;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,6 +28,8 @@ public class SemanticAnalyzer extends EduScriptBaseVisitor<Void> {
 
     public SemanticAnalyzer(SemanticErrorHandler errorHandler) {
         this.errorHandler = errorHandler;
+        this.envs = new HashMap<>();
+        this.plan = new ExecutionPlan();
     }
 
     public SemanticErrorHandler getErrorHandler() {
@@ -53,7 +56,13 @@ public class SemanticAnalyzer extends EduScriptBaseVisitor<Void> {
         String v = extractValue(ctx.value());
 
         if (envs.containsKey(k)) {
-            // TODO: error env key already exists
+            errorHandler.reportError(
+                "Environment variable '" + k + "' is already defined",
+                "Environment variable redefinition",
+                ctx.getStart().getLine(),
+                ctx.getStart().getCharPositionInLine()
+            );
+            return null;
         }
 
         envs.put(k, v);
@@ -63,16 +72,28 @@ public class SemanticAnalyzer extends EduScriptBaseVisitor<Void> {
     @Override
     public Void visitTrgBlock(TrgBlockContext ctx) {
         if (trg != null) {
-            // TODO: error can have only one trigger per pipeline
+            errorHandler.reportError(
+                "Pipeline can have only one trigger block",
+                "Multiple trigger blocks defined",
+                ctx.getStart().getLine(),
+                ctx.getStart().getCharPositionInLine()
+            );
+            return null;
         }
 
         trg = new Trigger();
 
         try {
-            TriggerType tp = TriggerType.valueOf(ctx.trgType().getText());
+            TriggerType tp = TriggerType.valueOf(ctx.trgType().getText().toUpperCase());
             trg.setType(tp);
         } catch (IllegalArgumentException ex) {
-            // TODO: error event type doesnt exist
+            errorHandler.reportError(
+                "Unknown trigger type '" + ctx.trgType().getText() + "'",
+                "Invalid trigger type",
+                ctx.trgType().getStart().getLine(),
+                ctx.trgType().getStart().getCharPositionInLine()
+            );
+            return null;
         }
 
         String tv = extractValue(ctx.trgValue().value());
@@ -92,21 +113,38 @@ public class SemanticAnalyzer extends EduScriptBaseVisitor<Void> {
                 stage.addRunCommand(extractRun(runCtx));
             } else if (item instanceof EduScriptParser.NeedsBlockContext needsCtx) {
                 if (stage.hasDeps()) {
-                    // TODO: error only one need block per stage
+                    errorHandler.reportError(
+                        "Stage can have only one 'needs' block",
+                        "Multiple needs blocks in stage '" + stage.getName() + "'",
+                        needsCtx.getStart().getLine(),
+                        needsCtx.getStart().getCharPositionInLine()
+                    );
+                    continue;
                 }
 
                 List<String> deps = extractValueList(needsCtx.stringList());
                 stage.getDeps().addAll(deps);
             } else if (item instanceof EduScriptParser.ConfigBlockContext configCtx) {
                 if (stage.getConfig() != null) {
-                    // TODO: error only one config block per stage
+                    errorHandler.reportError(
+                        "Stage can have only one 'config' block",
+                        "Multiple config blocks in stage '" + stage.getName() + "'",
+                        configCtx.getStart().getLine(),
+                        configCtx.getStart().getCharPositionInLine()
+                    );
+                    continue;
                 }
                 stage.setConfig(extractStageConfigs(configCtx));
             }
         }
 
         if (!stage.hasAtLeastOneRunCommand()) {
-            // TODO: error must have at least one run
+            errorHandler.reportError(
+                "Stage must have at least one 'run' command",
+                "Missing run commands in stage '" + stage.getName() + "'",
+                ctx.getStart().getLine(),
+                ctx.getStart().getCharPositionInLine()
+            );
         }
 
         plan.addStage(stage);
@@ -116,7 +154,11 @@ public class SemanticAnalyzer extends EduScriptBaseVisitor<Void> {
 
     private String extractImage(EduScriptParser.ImageBlockContext ctx) {
         if (ctx == null) {
-            // TODO: error must have at least one image
+            errorHandler.reportError(
+                "Stage must have an image block",
+                "Missing image specification"
+            );
+            return "";
         }
 
         return extractValue(ctx.value());
@@ -132,7 +174,13 @@ public class SemanticAnalyzer extends EduScriptBaseVisitor<Void> {
         }
 
         if (runcmd.isBlank()) {
-            // TODO: error command must not be blank
+            errorHandler.reportError(
+                "Run command cannot be blank",
+                "Empty run command",
+                ctx.getStart().getLine(),
+                ctx.getStart().getCharPositionInLine()
+            );
+            return "";
         }
 
         return runcmd;
@@ -145,7 +193,13 @@ public class SemanticAnalyzer extends EduScriptBaseVisitor<Void> {
             // For future use, validate here predefined configs.
             // Custom args will be added in block
             if (cfgs.customArgAlreadyDefined(cfg.ID().getText())) {
-                // TODO: error config key already defined
+                errorHandler.reportError(
+                    "Configuration key '" + cfg.ID().getText() + "' is already defined",
+                    "Duplicate configuration key",
+                    cfg.getStart().getLine(),
+                    cfg.getStart().getCharPositionInLine()
+                );
+                continue;
             }
 
             cfgs.addCustomArg(cfg.ID().getText(), extractValue(cfg.value()));
@@ -159,10 +213,15 @@ public class SemanticAnalyzer extends EduScriptBaseVisitor<Void> {
         String envVal;
         if (parsedval.TEXT() != null) {
             envVal = parsedval.TEXT().getText();
+            envVal = unquote(envVal);
         } else {
             envVal = parsedval.ID().getText();
         }
         return envVal;
+    }
+
+    private String unquote(String inp) {
+        return inp.replaceAll("^\"|\"$", "");
     }
 
     private List<String> extractValueList(EduScriptParser.StringListContext parsedlis) {

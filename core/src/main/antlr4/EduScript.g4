@@ -1,56 +1,51 @@
 grammar EduScript;
 
-// ============
-// PARSER RULES
-// ============
+// ============ PARSER RULES ============
 
-pipeline:               PIPELINE value LBRACE pipelineBody RBRACE;
-pipelineBody:           (envBlock | trgBlock | stageBlock)*;
+pipeline: PIPELINE value LBRACE pipelineBody RBRACE;
+pipelineBody: (envBlock | trgBlock | stageBlock)*;
 
-envBlock:               ENV LBRACE envEntry* RBRACE;
-envEntry:               ID EQ value NEWLINE?;
+envBlock: ENV LBRACE envEntry* RBRACE;
+envEntry: ID EQ value; // Removed optional NEWLINE
 
-trgBlock:               EVERY trgType ON trgValue NEWLINE?;
-trgType:                PUSH | PULL_REQUEST | TAG;
-trgValue:               value;
+trgBlock: EVERY trgType ON trgValue; // Removed optional NEWLINE
+trgType: value;
+trgValue: value;
 
-stageBlock:             STAGE value LBRACE stageBody RBRACE;
-stageBody:              (imageBlock | runBlock | needsBlock | configBlock)*;
+stageBlock: STAGE value LBRACE stageBody RBRACE;
+stageBody: (imageBlock | runBlock | needsBlock | configBlock)*;
 
-imageBlock:             IMAGE value NEWLINE?;
-runBlock:               RUN (value | multiLineString);
-needsBlock:             NEEDS stringList NEWLINE?;
-configBlock:            CONFIG LBRACE configEntry* RBRACE;
-configEntry:            ID EQ value NEWLINE?;
+imageBlock: IMAGE value; // Removed optional NEWLINE
+runBlock: RUN (value | multiLineString);
+needsBlock: NEEDS stringList; // Removed optional NEWLINE
+configBlock: CONFIG LBRACE configEntry* RBRACE;
+configEntry: ID EQ value; // Removed optional NEWLINE
 
-value:                  TEXT | ID;
-multiLineString:        TRIPLE_STRING;
-stringList:             value (COM value)*;
+value: TEXT | ID;
+multiLineString: TRIPLE_STRING;
+stringList: value (COM value)*;
 
-// ===========
-// LEXER RULES
-// ===========
+// =========== LEXER RULES ===========
 
-PIPELINE:               'pipeline';
-ENV:                    'env';
-EVERY:                  'every';
-ON:                     'on';
-PUSH:                   'push';
-PULL_REQUEST:           'pull_request';
-TAG:                    'tag';
-STAGE:                  'stage';
-IMAGE:                  'image';
-RUN:                    'run';
-NEEDS:                  'needs';
-CONFIG:                 'config';
+PIPELINE: 'pipeline';
+ENV: 'env';
+EVERY: 'every';
+ON: 'on';
+// PUSH: 'push';
+// PULL_REQUEST: 'pull_request';
+// TAG: 'tag';
+STAGE: 'stage';
+IMAGE: 'image';
+RUN: 'run';
+NEEDS: 'needs';
+CONFIG: 'config';
 
-EQ:                     '=';
-COM:                    ',';
-LBRACE:                 '{';
-RBRACE:                 '}';
-NEWLINE:                ('\r'? '\n')+;
-TEXT:                   '"' ( ~["\\] | '\\' .)* '"';
-TRIPLE_STRING:          '"""' .*? '"""';
-ID:             [a-zA-Z_][a-zA-Z0-9_\-]*;
-WS:                     [ \t]+ -> skip;
-COMMENT:                '#' ~[\r\n]* -> skip;
+EQ: '=';
+COM: ',';
+LBRACE: '{';
+RBRACE: '}';
+TEXT: '"' ( ~["\\] | '\\' .)* '"';
+TRIPLE_STRING: '"""' .*? '"""';
+ID: [a-zA-Z_][a-zA-Z0-9_\-]*;
+WS: [ \t\r\n]+ -> skip; // Skip all whitespace including newlines
+COMMENT: '#' ~[\r\n]* -> skip;
