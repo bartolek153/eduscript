@@ -49,16 +49,17 @@
 
 ### DSL
 
-* [ ] Create ANTLR grammar
-* [ ] Parse and load execution plan
-* [ ] Setup Kubernetes cluster (Minikube)
-* [ ] Call Kubernetes client API during `job` processing
-* [ ] Track logs (broker)
+* [x] Create ANTLR grammar <<
+* [x] Parse and load execution plan
+* [x] Setup Kubernetes cluster (Minikube)
+* [x] Call Kubernetes client API during `job` processing
+* [x] Track logs (broker)
 
 ---
 
 ### Infrastructure
 
+* [ ] Config kubernetes readiness probe. Assure kafka partitions are assigned to workers
 * [ ] Add CI jobs (backend/worker)
 * [ ] Setup HAProxy
 * [ ] Add TLS termination
@@ -74,8 +75,9 @@
 
 ### Enhancements/Refactors
 
+* [ ] Implement job scheduler
 * [ ] Change the project name
-* [ ] Change `common` module name to `lib` (?)
+* [ ] Change `common` module name to `lib` | `core` to `dsl`
 * [ ] Add proper error handling
 * [ ] Persist job and history info
 * [ ] Create priority job queueing

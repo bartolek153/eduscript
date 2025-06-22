@@ -1,8 +1,0 @@
-programa TestSyntaxError;
-
-var x: inteiro;
-
-inicio
-    x = 5
-    escrever("Missing semicolon above");
-fimprograma

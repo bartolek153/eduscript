@@ -43,13 +43,13 @@ services:
       KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
       CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
 
-  backend:
-    build: ./backend
-    ports:
-      - "9091:9090"
-      - "8081:8080"
-    networks:
-      - backend
+  # backend:
+  #   build: ./backend
+  #   ports:
+  #     - "9091:9090"
+  #     - "8081:8080"
+  #   networks:
+  #     - backend
 
 networks:
   backend:
