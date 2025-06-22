@@ -40,6 +40,6 @@ public class UserSessionServiceImpl implements UserSessionService {
     }
 
     private UUID getUserId(Principal user) {
-        return Utils.uuidToStr(user.getName());
+        return Utils.strToUUID(user.getName());
     }
 }

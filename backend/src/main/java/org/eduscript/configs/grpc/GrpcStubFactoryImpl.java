@@ -2,13 +2,9 @@ package org.eduscript.configs.grpc;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.eduscript.grpc.MessageForwarderGrpc;
-import org.eduscript.grpc.ProtoLogEntry;
 import org.springframework.stereotype.Component;
 
 import io.grpc.CallOptions;
-import io.grpc.Grpc;
-import io.grpc.InsecureChannelCredentials;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.AbstractBlockingStub;

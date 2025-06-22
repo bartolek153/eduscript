@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 @RestController
-@RequestMapping("/api/compile")
+@RequestMapping("/api/compile") // not using rest controllers for now
 public class CompileController {
 
     private final JobRequestProducer jobRequestProducer;

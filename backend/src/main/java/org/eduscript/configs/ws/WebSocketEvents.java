@@ -27,7 +27,7 @@ public class WebSocketEvents {
 
         userSessionService.saveSession(
                 headerAccessor.getUser(),
-                Utils.uuidToStr(sessionId));
+                Utils.strToUUID(sessionId));
     }
 
     // @EventListener

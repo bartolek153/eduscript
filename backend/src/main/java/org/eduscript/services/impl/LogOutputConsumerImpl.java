@@ -52,7 +52,7 @@ public class LogOutputConsumerImpl implements LogOutputConsumer {
     @Override
     @KafkaListener(topics = "${app.kafka.topics.logs}")
     public void consume(LogEntry log) {
-        UUID jobId = Utils.uuidToStr(log.getJobId());
+        UUID jobId = Utils.strToUUID(log.getJobId());
 
         jobMetadataRepository.findById(jobId).ifPresentOrElse(
                 jobSession -> handleLog(log, jobSession),

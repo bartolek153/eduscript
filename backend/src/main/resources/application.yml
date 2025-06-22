@@ -1,4 +1,9 @@
 grpc:
+  client:
+    GLOBAL:
+      negotiation-type: plaintext  # TODO: add this in dev
+    __name__:
+      negotiationType: plaintext
   server:
     port: 9090
 
