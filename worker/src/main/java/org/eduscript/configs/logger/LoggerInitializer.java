@@ -1,4 +1,4 @@
-package org.eduscript.configs;
+package org.eduscript.configs.logger;
 
 import org.eduscript.logging.Logger;
 import org.eduscript.utils.AsyncLoggerFlusher;

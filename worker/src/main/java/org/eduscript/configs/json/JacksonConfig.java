@@ -1,4 +1,4 @@
-package org.eduscript.configs;
+package org.eduscript.configs.json;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

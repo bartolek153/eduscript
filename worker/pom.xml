@@ -37,13 +37,13 @@
     </dependency>
     <dependency>
       <groupId>org.eduscript</groupId>
-      <artifactId>core</artifactId>
+      <artifactId>common</artifactId>
       <version>1.0.0</version>
     </dependency>
     <dependency>
-      <groupId>org.eduscript</groupId>
-      <artifactId>common</artifactId>
-      <version>1.0.0</version>
+      <groupId>io.fabric8</groupId>
+      <artifactId>kubernetes-client</artifactId>
+      <version>7.3.1</version>
     </dependency>
   </dependencies>
 </project>

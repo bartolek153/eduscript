@@ -1,4 +1,4 @@
-package org.eduscript.configs;
+package org.eduscript.configs.logger;
 
 import org.eduscript.services.LogOutputProducer;
 import org.eduscript.utils.AsyncLoggerFlusher;
@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 public class LoggerFlusherConfig {
 
     @Bean
-    public AsyncLoggerFlusher asyncLoggerFlusher(
+    AsyncLoggerFlusher asyncLoggerFlusher(
             LoggerFlusherProperties props,
             LogOutputProducer logOutputProducer) {
         

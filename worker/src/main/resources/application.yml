@@ -5,11 +5,15 @@ spring:
       group-id: worker-group
 
 app:
+  k8s:
+    namespace: default
+    master-url: https://127.0.0.1:33599
+    trust-certs: true
   kafka:
     topics: 
       jobs: jobs
       logs: logs
   logger:
-    batch-size: 20
-    flush-interval-ms: 2000
+    batch-size: 12
+    flush-interval-ms: 3000
     use-formatter: true
