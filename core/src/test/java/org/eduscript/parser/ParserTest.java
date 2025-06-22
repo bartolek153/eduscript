@@ -1,11 +1,10 @@
 package org.eduscript.parser;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import org.eduscript.utils.ParserUtils;
 import org.junit.Test;
-
-import main.antlr4.EduScriptParser;
 
 public class ParserTest {
 

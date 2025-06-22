@@ -1,14 +1,11 @@
 package org.eduscript.parser;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-import org.antlr.v4.runtime.RecognitionException;
-import org.antlr.v4.runtime.Recognizer;
-import org.antlr.v4.runtime.Token;
-import org.junit.Test;
 import org.junit.Before;
-
-import main.antlr4.EduScriptLexer;
+import org.junit.Test;
 
 public class SyntaxErrorListenerTest {
     

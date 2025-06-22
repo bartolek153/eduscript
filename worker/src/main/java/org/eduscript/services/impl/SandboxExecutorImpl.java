@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 import org.eduscript.logging.Logger;
 import org.eduscript.model.JobMessage;
@@ -215,24 +214,6 @@ public class SandboxExecutorImpl implements SandboxExecutor {
           Logger.printInfo(line);
         }
       }
-    }
-  }
-
-  private void waitForJobCompletion(String namespace, String jobName, long timeoutMinutes)
-      throws Exception {
-
-    try (KubernetesClient client = clientFactory.createClient()) {
-      client.batch().v1().jobs()
-          .inNamespace(namespace)
-          .withName(jobName)
-          .waitUntilCondition(job -> {
-            if (job.getStatus() == null)
-              return false;
-            Integer succeeded = job.getStatus().getSucceeded();
-            Integer failed = job.getStatus().getFailed();
-            return (succeeded != null && succeeded > 0) ||
-                (failed != null && failed > 0);
-          }, timeoutMinutes, TimeUnit.MINUTES);
     }
   }
 }
