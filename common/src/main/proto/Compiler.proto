@@ -6,6 +6,7 @@ option java_outer_classname = "CompilerProto";
 
 service CompileService {
     rpc CompileCode (CompileRequest) returns (CompileResponse);
+    rpc CancelJob (CancelRequest) returns (CancelResponse);
 }
 
 message CompileRequest {
@@ -15,3 +16,9 @@ message CompileRequest {
 message CompileResponse {
     string job_id = 1;
 }
+
+message CancelRequest {
+    string job_id = 1;
+}
+
+message CancelResponse {}

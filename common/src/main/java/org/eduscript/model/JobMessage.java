@@ -1,17 +1,18 @@
 package org.eduscript.model;
 
+import java.util.List;
 import java.util.UUID;
 
 public class JobMessage {
     private UUID id;
-    private String sourceCode;
+    private List<JobTask> tasks;
 
-    public JobMessage() {
+    public JobMessage(UUID id, List<JobTask> tasks) {
+        this.id = id;
+        this.tasks = tasks;
     }
 
-    public JobMessage(UUID id, String sourceCode) {
-        this.id = id;
-        this.sourceCode = sourceCode;
+    public JobMessage() {
     }
 
     public UUID getId() {
@@ -22,11 +23,11 @@ public class JobMessage {
         this.id = id;
     }
 
-    public String getSourceCode() {
-        return sourceCode;
+    public List<JobTask> getTasks() {
+        return tasks;
     }
 
-    public void setSourceCode(String sourceCode) {
-        this.sourceCode = sourceCode;
+    public void setTasks(List<JobTask> tasks) {
+        this.tasks = tasks;
     }
 }
