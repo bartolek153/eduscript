@@ -3,11 +3,17 @@ spring:
     bootstrap-servers: localhost:9092
     consumer:
       group-id: worker-group
+      enable-auto-commit: false   # Temporary
 
+logging:
+  level:
+    org.eduscript.services.impl: DEBUG
+    # org.springframework.cache.*: trace
+    
 app:
   k8s:
     namespace: default
-    master-url: https://127.0.0.1:33599
+    master-url: https://127.0.0.1:45255
     trust-certs: true
   kafka:
     topics: 

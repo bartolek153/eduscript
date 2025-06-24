@@ -6,7 +6,7 @@ import org.eduscript.enums.JobStatus;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
-@RedisHash(value = "job_sessions", timeToLive = 3600)
+@RedisHash(value = "job_metadata", timeToLive = 3600)
 public class JobMetadata {
     @Id
     private UUID jobId;

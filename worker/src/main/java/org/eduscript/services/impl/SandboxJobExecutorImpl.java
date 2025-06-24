@@ -2,6 +2,7 @@ package org.eduscript.services.impl;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.nio.channels.ClosedByInterruptException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -11,7 +12,7 @@ import org.eduscript.logging.Logger;
 import org.eduscript.model.JobMessage;
 import org.eduscript.model.JobTask;
 import org.eduscript.services.KubernetesClientFactory;
-import org.eduscript.services.SandboxExecutor;
+import org.eduscript.services.SandboxJobExecutor;
 import org.springframework.stereotype.Service;
 
 import io.fabric8.kubernetes.api.model.Container;
@@ -33,25 +34,29 @@ import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.fabric8.kubernetes.client.dsl.LogWatch;
 
 @Service
-public class SandboxExecutorImpl implements SandboxExecutor {
+public class SandboxJobExecutorImpl implements SandboxJobExecutor {
 
   private static final String DEFAULT = "default"; // TODO: make a parameter
-  private static final int FINISHED_JOB_TTL = 60; // TODO: make a parameter
+  private static final int FINISHED_JOB_TTL = 10; // TODO: make a parameter
 
   private static final String JOB_ID = "jobId";
 
   private final KubernetesClientFactory clientFactory;
 
-  public SandboxExecutorImpl(KubernetesClientFactory clientFactory) {
+  public SandboxJobExecutorImpl(KubernetesClientFactory clientFactory) {
     this.clientFactory = clientFactory;
   }
 
   @Override
-  public void execute(JobMessage msg) {
+  public Boolean execute(JobMessage msg) {
     List<Container> initContainers = new ArrayList<>();
 
     for (JobTask task : msg.getTasks()) {
-      initContainers.add(createContainer(task.getName(), task.getImage(), task.getArgs()));
+      initContainers.add(createContainer(
+          task.getName(),
+          task.getImage(),
+          task.getArgs(),
+          task.getRunCommands()));
     }
 
     PodSpec podSpec = new PodSpecBuilder()
@@ -60,29 +65,48 @@ public class SandboxExecutorImpl implements SandboxExecutor {
         .withContainers(createContainer(
             "a",
             "hello-world",
-            null))
+            null, null))
         .build();
 
-    Job job = createJob(msg.getId(), podSpec);
+    Job job = createJob(msg.getId(), podSpec); // TODO: currently not validating execution errors
 
     try (KubernetesClient client = clientFactory.createClient()) {
-      client.batch().v1().jobs()
+      if (client.batch().v1().jobs()
           .inNamespace(DEFAULT)
-          .resource(job)
-          .create();
+          .withName(msg.getId().toString())
+          .get() == null) {
+
+            client.batch().v1().jobs()
+                .inNamespace(DEFAULT)
+                .resource(job)
+                .create();
+          };
+      
     } catch (KubernetesClientException ex) {
       // TODO: handle exception
+      ex.printStackTrace();
+    } catch (Exception ex) {
+      if (ex instanceof ClosedByInterruptException) {
+        System.out.println("expected ClosedByInterruptException 1");
+      }
+
       ex.printStackTrace();
     }
 
     try {
       streamInitContainersLogs(DEFAULT, msg.getId().toString());
     } catch (Exception ex) {
+      if (ex instanceof ClosedByInterruptException) {
+        System.out.println("expected ClosedByInterruptException 2");
+      }
+
       ex.printStackTrace();
     }
+
+    return true;
   }
 
-  private Container createContainer(String name, String image, Map<String, String> envs) {
+  private Container createContainer(String name, String image, Map<String, String> envs, List<String> runs) {
     ContainerBuilder containerBuilder = new ContainerBuilder()
         .withName(name)
         .withImage(image);
@@ -96,19 +120,24 @@ public class SandboxExecutorImpl implements SandboxExecutor {
       containerBuilder.withEnv(envVars);
     }
 
+    if (runs != null && !runs.isEmpty()) {
+      containerBuilder.withCommand("/bin/sh", "-c");
+      containerBuilder.withArgs(String.join(" && ", runs));
+    }
+
     return containerBuilder.build();
   }
 
   private Job createJob(UUID jobId, PodSpec podSpec) {
     String jobIdStr = jobId.toString();
-    String jobName = "execute-" + jobIdStr;
 
     ObjectMeta jobMetadata = new ObjectMetaBuilder()
-        .withName(jobName)
+        .withName(jobIdStr)
         .build();
 
     ObjectMeta podMetadata = new ObjectMetaBuilder()
         .addToLabels(JOB_ID, jobIdStr)
+        .addToLabels("type", "pipeline")
         .build();
 
     PodTemplateSpec podTemplate = new PodTemplateSpecBuilder()
@@ -119,6 +148,7 @@ public class SandboxExecutorImpl implements SandboxExecutor {
     return new JobBuilder()
         .withMetadata(jobMetadata)
         .withNewSpec()
+        .withBackoffLimit(3)
         .withTtlSecondsAfterFinished(FINISHED_JOB_TTL)
         .withTemplate(podTemplate)
         .endSpec()
@@ -149,11 +179,11 @@ public class SandboxExecutorImpl implements SandboxExecutor {
 
       for (Container container : initContainers) {
         String containerName = container.getName();
-        Logger.printWarning("▶ Waiting for initContainer: %s%n", containerName);
+        Logger.printWarning("▶ Waiting for initContainer: " + containerName);
 
         waitForContainerStartOrTerminate(client, namespace, podName, containerName, true);
 
-        Logger.printWarning("▶ Streaming logs from: %s%n", containerName);
+        Logger.printWarning("▶ Streaming logs from: " + containerName);
         streamContainerLogs(client, namespace, podName, containerName);
         Logger.printSuccess("▶ Container completed");
       }
@@ -215,5 +245,19 @@ public class SandboxExecutorImpl implements SandboxExecutor {
         }
       }
     }
+  }
+
+  public Boolean cancel(UUID jobId) {
+    try (KubernetesClient client = clientFactory.createClient()) {
+      client.batch().v1().jobs()
+          .inNamespace(DEFAULT)
+          .withName(jobId.toString())
+          .delete();
+    } catch (KubernetesClientException ex) {
+      // TODO: handle exception
+      ex.printStackTrace();
+    }
+
+    return true;
   }
 }
