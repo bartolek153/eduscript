@@ -36,13 +36,10 @@
 * [x] Handle/store user session and job metadata
 * [x] Handle replica identification
 * [x] Implement message forwarding in backend with gRPC (replicas -> correct user session connection)
-* [ ] Create `log` (in-memory/DLQ ?) buffer for retries (reconnections)
-* [ ] Handle `job` cancellation with redis flag
-* [ ] Add redis TTL handlers (where needed)
-* [ ] Add deduplication lock
-* [ ] Implement backpressure support (buffer filling?)
+* [x] Handle `job` cancellation with redis flag
+* [ ] Add redis TTL (where needed)
 
-* [ ] Setup Prometheus and OTEL collector/SDK
+* [x] Setup Prometheus
 * [ ] Send backend/worker metrics
 
 ---
@@ -79,7 +76,7 @@
 * [ ] Change the project name
 * [ ] Change `common` module name to `lib` | `core` to `dsl`
 * [ ] Add proper error handling
-* [ ] Persist job and history info
+* [ ] Persist job, user and history info with MongoDB
 * [ ] Create priority job queueing
 * [ ] Add real user management, user web UI and AdminOps panel
 * [ ] Centralized logging (ELK or Loki)
