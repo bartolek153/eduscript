@@ -1,11 +1,27 @@
 grpc:
   client:
     GLOBAL:
-      negotiation-type: plaintext  # TODO: add this in dev
+      negotiation-type: plaintext  # dev
     __name__:
-      negotiationType: plaintext
+      negotiationType: plaintext  # dev
   server:
-    port: 9090
+    port: 50051
+    health-service:
+      type: ACTUATOR
+
+management:
+  endpoint:
+    health:
+      show-details: always  # dev
+      probes:
+        enabled: true
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - prometheus
+
 
 spring:
   data:

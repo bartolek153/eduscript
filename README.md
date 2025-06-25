@@ -68,6 +68,7 @@
 * [ ] Configure proxy rate limiting
 * [ ] Integrate system components to send metrics to observability system (broker, cache, etc.)
 * [ ] Integrate proxy metrics with observability system (latency, errors, etc.)
+* [ ] Configure Kubernetes + Prometheus
 * [ ] Configure Grafana panel
 * [ ] Create k6 tests and generate reports
 
@@ -97,3 +98,23 @@
 * [ ] Create JavaDocs
 * [ ] Draw app flow diagram
 * [ ] Draw infra diagram
+
+## Metrics
+
+### Broker
+
+* Consumer lag time
+* Broker resource utilization (CPU/Memory)
+* Topic and partition metrics (msgs produced, msgs consumed)
+
+### Cache
+
+### Web Server
+
+### Kubernetes
+
+### HAProxy / Load Balancer
+
+### WebSocket Server
+
+### Job Execution Logic

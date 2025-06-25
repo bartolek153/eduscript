@@ -36,7 +36,7 @@ public class Logger {
 
         return switch (entry.getLevel()) {
             case "EXTERN" -> BLUE + "🔹 " + message + RESET;
-            case "INFO" -> CYAN + ts + " ℹ️  " + message + RESET;
+            case "INFO" -> CYAN + ts + " i  " + message + RESET;
             case "ERROR" -> BOLD + RED + ts + " ❌ " + message + RESET;
             case "SUCCESS" -> BOLD + GREEN + ts + " ✅ " + message + RESET;
             case "WARNING" -> BOLD + YELLOW + ts + " ⚠️  " + message + RESET;

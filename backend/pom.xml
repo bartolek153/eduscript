@@ -27,11 +27,6 @@
       <artifactId>grpc-client-spring-boot-starter</artifactId>
       <version>3.1.0.RELEASE</version>
     </dependency>
-    <!-- <dependency>
-      <groupId>net.devh</groupId>
-      <artifactId>grpc-client-spring-boot-starter</artifactId>
-      <version>3.1.0.RELEASE</version>
-    </dependency> -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-data-redis</artifactId>
@@ -62,6 +57,14 @@
       <groupId>org.eduscript</groupId>
       <artifactId>core</artifactId>
       <version>1.0.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.micrometer</groupId>
+      <artifactId>micrometer-registry-prometheus</artifactId>
     </dependency>
   </dependencies>
   <build>

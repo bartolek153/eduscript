@@ -1,19 +1,19 @@
 services:
   cache:
-    image: redis:8.0.2
+    image: redis:7.4.4
     container_name: cache
-    networks: 
-      - backend
+    networks:
+      - default
     ports:
       - 6379:6379
 
   broker-ui:
     image: tchiotludo/akhq:0.25.1
     container_name: akhq
-    depends_on: 
+    depends_on:
       - broker
     networks:
-      - backend
+      - default
     volumes:
       - ./akhq-config.yml:/app/application.yml
     ports:
@@ -23,9 +23,10 @@ services:
     image: confluentinc/cp-kafka:7.9.1
     container_name: broker
     networks:
-      - backend
-    ports: 
+      - default
+    ports:
       - 9092:9092
+      - 7071:7071
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,CONTROLLER:PLAINTEXT
@@ -42,14 +43,71 @@ services:
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
       CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+      KAFKA_JMX_PORT: 9999
+      KAFKA_JMX_HOSTNAME: localhost
+      KAFKA_OPTS: >
+        -javaagent:/opt/jmx-exporter/jmx_prometheus_javaagent-0.20.0.jar=7071:/opt/jmx-exporter/kafka.yml
+    volumes:
+      - ./jmx-exporter:/opt/jmx-exporter
+      
+  monitoring:
+    image: prom/prometheus:v3.4.1
+    container_name: prometheus
+    networks:
+      - default
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
 
-  # backend:
-  #   build: ./backend
-  #   ports:
-  #     - "9091:9090"
-  #     - "8081:8080"
-  #   networks:
-  #     - backend
+  monitoring-ui:
+    image: grafana/grafana:12.0.2
+    container_name: grafana
+    ports:
+      - 3000:3000
+    depends_on:
+      - monitoring
+    networks:
+      - default
+    volumes:
+      - grafana-data:/var/lib/grafana
+
+  monitoring-broker:
+    image: danielqsj/kafka-exporter
+    container_name: kafka-exporter
+    depends_on:
+      - monitoring
+    networks:
+      - default
+    command: ["--kafka.server=broker:29092"]
+    ports:
+      - 9308:9308
+
+  monitoring-cache:
+    image: oliver006/redis_exporter
+    container_name: redis_exporter
+    environment:
+      - REDIS_ADDR=cache:6379
+    depends_on:
+      - monitoring
+    networks:
+      - default
+    ports:
+      - 9121:9121
+
+  backend:
+    build: ./backend
+    ports:
+      - 50051:50051
+      - 8080:8080
+    networks:
+      - default
+
+volumes:
+  prometheus-data:
+  grafana-data:
 
 networks:
-  backend:
+  default:
+    driver: bridge
