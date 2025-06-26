@@ -1,3 +1,10 @@
+## [0.1.2](https://github.com/bartolek153/eduscript/compare/v0.1.1...v0.1.2) (2025-06-26)
+
+
+### Bug Fixes
+
+* remove skip command from release commit message ([00cb089](https://github.com/bartolek153/eduscript/commit/00cb0898c9f52cc91b0aa123e06e1e211f607597))
+
 ## [0.1.1](https://github.com/bartolek153/eduscript/compare/v0.1.0...v0.1.1) (2025-06-26)
 
 
