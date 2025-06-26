@@ -40,6 +40,12 @@ jobs:
             backend/target/
             backend/Dockerfile
 
+      - name: Get latest tag
+        id: latest_tag
+        run: |
+          git fetch --tags
+          echo "tag=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
+
   build-and-push-backend-image:  # https://docs.github.com/en/actions/use-cases-and-examples/publishing-packages/publishing-docker-images
     needs: build-maven
     runs-on: ubuntu-latest
@@ -63,12 +69,6 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Get latest tag
-        id: latest_tag
-        run: |
-          git fetch --tags --force
-          echo "tag=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
