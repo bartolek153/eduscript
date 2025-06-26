@@ -33,6 +33,14 @@ jobs:
       - name: Build with Maven
         run: mvn -B install --file pom.xml -DskipTests
 
+      - name: Upload target
+        uses: actions/upload-artifact@v4
+        with:
+          name: build_artifacts
+          path: |
+            backend/target/
+            Dockerfile
+
   build-and-push-backend-image:  # https://docs.github.com/en/actions/use-cases-and-examples/publishing-packages/publishing-docker-images
     needs: build-maven
     runs-on: ubuntu-latest
@@ -45,6 +53,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build_artifacts
 
       - name: TEST
         run: |
