@@ -1,17 +1,17 @@
-name: Java 21 CI with Maven
+name: Build Workflow
 
 env:
   REGISTRY: ghcr.io
-  BACKEND_IMAGE_NAME: backend
+  BACKEND_IMAGE_NAME: ${{ github.repository_owner }}/backend
 
 on:
+  workflow_dispatch:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
 
 jobs:
-
   build-maven:
     runs-on: ubuntu-latest
     steps:
