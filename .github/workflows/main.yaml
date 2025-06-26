@@ -53,7 +53,7 @@ jobs:
           ls -la ./backend
 
       - name: Build and push Docker image
-        id: push
+        id: test
         uses: docker/build-push-action@v6
         with:
           context: ./backend
