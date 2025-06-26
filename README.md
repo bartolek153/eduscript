@@ -13,7 +13,7 @@
 * STOMP (ws)
 * Redis
 
-## Todo
+## Roadmap
 
 ### Backend
 
@@ -40,7 +40,9 @@
 * [ ] Add redis TTL (where needed)
 
 * [x] Setup Prometheus
-* [ ] Send backend/worker metrics
+* [x] Send backend metrics
+* [ ] Send worker metrics
+* [ ] Add unit tests
 
 ---
 
@@ -54,10 +56,17 @@
 
 ---
 
+### CI
+
+* [ ] Add CI job for tagging and releasing based on SemVer
+* [ ] Add CI job for building + pushing images
+* [ ] Setup image (and release?) signing
+* [ ] Enable dependabot
+* [ ] Protect `main` branch (no force-push, no direct commits) and create rules
+* [ ] Configure unit tests in pipelines
+
 ### Infrastructure
 
-* [ ] Config kubernetes readiness probe. Assure kafka partitions are assigned to workers
-* [ ] Add CI jobs (backend/worker)
 * [ ] Setup HAProxy
 * [ ] Add TLS termination
 * [ ] Configure load balancer
@@ -66,6 +75,7 @@
 * [ ] Integrate system components to send metrics to observability system (broker, cache, etc.)
 * [ ] Integrate proxy metrics with observability system (latency, errors, etc.)
 * [ ] Configure Kubernetes + Prometheus
+* [ ] Configure kubernetes readiness probe. Assure kafka partitions are assigned to workers
 * [ ] Configure Grafana panel
 * [ ] Create k6 tests and generate reports
 
