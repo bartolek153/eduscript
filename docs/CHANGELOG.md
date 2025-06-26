@@ -1,3 +1,10 @@
+## [0.1.4](https://github.com/bartolek153/eduscript/compare/v0.1.3...v0.1.4) (2025-06-26)
+
+
+### Bug Fixes
+
+* test ci ([a3a8eee](https://github.com/bartolek153/eduscript/commit/a3a8eeeb2cecb6f6356e2f0eb883f0a63a830afb))
+
 ## [0.1.3](https://github.com/bartolek153/eduscript/compare/v0.1.2...v0.1.3) (2025-06-26)
 
 
