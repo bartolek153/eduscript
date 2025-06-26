@@ -7,9 +7,8 @@ env:
 on:
   workflow_dispatch:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    tags:
+      - 'v*'
 
 jobs:
   build-maven:
@@ -39,7 +38,7 @@ jobs:
           name: build_artifacts
           path: |
             backend/target/
-            Dockerfile
+            backend/Dockerfile
 
   build-and-push-backend-image:  # https://docs.github.com/en/actions/use-cases-and-examples/publishing-packages/publishing-docker-images
     needs: build-maven
@@ -52,7 +51,7 @@ jobs:
       id-token: write
 
     steps:
-      - uses: actions/checkout@v4
+      # - uses: actions/checkout@v4
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
@@ -70,6 +69,13 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=tag
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}
+            type=semver,pattern={{major}}.{{minor}}
 
       - name: Build and push Docker image
         id: push
