@@ -10,7 +10,7 @@
         }],
         ["@semantic-release/git", {
             "assets": ["docs/CHANGELOG.md", "pom.xml"],
-            "message": "chore(release): ${nextRelease.version} [skip ci]"
+            "message": "chore(release): ${nextRelease.version}"
         }],
         ["@semantic-release/exec", {
             "prepareCmd": "./scripts/update-pom-version.sh ${nextRelease.version}"

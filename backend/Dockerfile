@@ -5,11 +5,11 @@ FROM public.ecr.aws/docker/library/eclipse-temurin:21.0.3_9-jre-alpine
 RUN apk add --no-cache dumb-init && \
     rm -rf /var/cache/apk/*
 
-ENV JAVA_USER javauser
-ENV WORKDIR_HOME /app
+ENV JAVA_USER=javauser
+ENV WORKDIR_HOME=/app
 
-ENV SPRING_KAFKA_BOOTSTRAP_SERVERS broker:29092
-ENV SPRING_DATA_REDIS_HOST cache
+ENV SPRING_KAFKA_BOOTSTRAP_SERVERS=broker:29092
+ENV SPRING_DATA_REDIS_HOST=cache
 
 RUN mkdir ${WORKDIR_HOME} &&\
     addgroup --system ${JAVA_USER} && adduser -S -s /bin/false -G ${JAVA_USER} ${JAVA_USER} &&\
