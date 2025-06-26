@@ -64,9 +64,17 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Get latest tag
+        id: latest_tag
+        run: |
+          git fetch --tags --force
+          echo "tag=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
+
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v5
+        env:
+          GITHUB_REF: refs/tags/${{ steps.latest_tag.outputs.tag }}
         with:
           images: ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}
           tags: |
