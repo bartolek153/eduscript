@@ -33,6 +33,7 @@ module.exports = {
                     "latest",
                     "{{version}}",
                     "{{major}}.{{minor}}",
+                    
                     process.env.BRANCH_NAME
                 ],
                 "dockerImage": process.env.BACKEND_IMAGE_NAME,
