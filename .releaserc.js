@@ -33,7 +33,7 @@ module.exports = {
                     "latest",
                     "{{version}}",
                     "{{major}}.{{minor}}",
-                    
+
                     process.env.BRANCH_NAME
                 ],
                 "dockerImage": process.env.BACKEND_IMAGE_NAME,
@@ -41,6 +41,24 @@ module.exports = {
                 "dockerRegistry": process.env.REGISTRY,
                 "dockerProject": process.env.BACKEND_IMAGE_PROJECT,
                 "dockerContext": "./backend/",
+                "dockerPlatform": ["linux/amd64"],
+            }
+        ],
+        [
+            "@codedependant/semantic-release-docker",  // worker build
+            {
+                "dockerTags": [
+                    "latest",
+                    "{{version}}",
+                    "{{major}}.{{minor}}",
+
+                    process.env.BRANCH_NAME
+                ],
+                "dockerImage": process.env.WORKER_IMAGE_NAME,
+                "dockerFile": "./worker/Dockerfile",
+                "dockerRegistry": process.env.REGISTRY,
+                "dockerProject": process.env.WORKER_IMAGE_PROJECT,
+                "dockerContext": "./worker/",
                 "dockerPlatform": ["linux/amd64"],
             }
         ],

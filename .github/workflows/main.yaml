@@ -6,6 +6,8 @@ env:
   DOCKER_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
   BACKEND_IMAGE_NAME: backend
   BACKEND_IMAGE_PROJECT: ${{ github.repository_owner }}
+  WORKER_IMAGE_NAME: worker
+  WORKER_IMAGE_PROJECT: ${{ github.repository_owner }}
   BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
 
 on:
@@ -65,10 +67,18 @@ jobs:
           node-version: "lts/*"
       - run: npm clean-install
       - name: Release
+        id: sem-rel
         env:
           # TARGET_PATH: "./backend"
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN_TRG }}
         run: npx semantic-release
+
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME}}
+          subject-digest: ${{ steps.sem-rel.outputs.docker_image_sha_long }}
+          push-to-registry: true
 
   build-and-push-backend-image:  # https://docs.github.com/en/actions/use-cases-and-examples/publishing-packages/publishing-docker-images
     if: false
