@@ -1,3 +1,10 @@
+## [0.1.5](https://github.com/bartolek153/eduscript/compare/v0.1.4...v0.1.5) (2025-06-27)
+
+
+### Bug Fixes
+
+* change action ([30e8b71](https://github.com/bartolek153/eduscript/commit/30e8b71e09d2ea1ce24d54f372305d43f79531c4))
+
 ## [0.1.4](https://github.com/bartolek153/eduscript/compare/v0.1.3...v0.1.4) (2025-06-26)
 
 
