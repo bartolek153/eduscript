@@ -1,9 +1,9 @@
 name: Release Workflow
 
-on:
-  push:
-    branches:
-      - main
+# on:
+#   push:
+#     branches:
+#       - main
 
 permissions:
   contents: read # for checkout
@@ -30,4 +30,4 @@ jobs:
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN_TRG }}
-        run: npx -p semantic-release/changelog -p semantic-release/git -p semantic-release/exec -p semantic-release semantic-release
+        run: npx semantic-release

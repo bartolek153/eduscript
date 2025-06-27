@@ -1,4 +1,4 @@
-name: Build Workflow
+name: Build
 
 env:
   REGISTRY: ghcr.io
@@ -32,21 +32,37 @@ jobs:
       - name: Build with Maven
         run: mvn -B install --file pom.xml -DskipTests
 
-      - name: Upload target
-        uses: actions/upload-artifact@v4
-        with:
-          name: build_artifacts
-          path: |
-            backend/target/
-            backend/Dockerfile
+      # - name: Upload target
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: build_artifacts
+      #     path: |
+      #       backend/target/
+      #       backend/Dockerfile
 
-      - name: Get latest tag
-        id: latest_tag
-        run: |
-          git fetch --tags
-          echo "tag=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
+  release:
+    needs: build-maven
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write       # to be able to publish a GitHub release
+      issues: write         # to be able to comment on released issues
+      pull-requests: write  # to be able to comment on released pull requests
+      id-token: write       # to enable use of OIDC for npm provenance
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          cache: npm
+          node-version: "lts/*"
+      - run: npm clean-install
+      - name: Release
+        env:
+          TARGET_PATH: "./backend"
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN_TRG }}
+        run: npx semantic-release
 
   build-and-push-backend-image:  # https://docs.github.com/en/actions/use-cases-and-examples/publishing-packages/publishing-docker-images
+    if: false
     needs: build-maven
     runs-on: ubuntu-latest
 
@@ -73,17 +89,15 @@ jobs:
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v5
-        env:
-          GITHUB_REF: refs/tags/${{ steps.latest_tag.outputs.tag }}
         with:
           images: ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}
           tags: |
             type=ref,event=branch
             type=ref,event=tag
             type=raw,value=latest,enable={{is_default_branch}}
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}},enable=${{ !startsWith(github.ref, 'refs/tags/v0.') }}
-            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{version}},value=${{ steps.semantic.outputs.new_release_version }}
+            type=semver,pattern={{major}},value=${{ steps.semantic.outputs.new_release_major_version }},enable=${{ !startsWith(github.ref, 'refs/tags/v0.') }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ steps.semantic.outputs.new_release_major_version }}.${{ steps.semantic.outputs.new_release_patch_version }}
 
       - name: Build and push Docker image
         id: push
