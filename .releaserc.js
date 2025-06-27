@@ -1,5 +1,5 @@
 module.exports = {
-    "branches": "main",
+    "branches": ["main"],
     "plugins": [
         "@semantic-release/commit-analyzer",
         "@semantic-release/release-notes-generator",
@@ -33,16 +33,14 @@ module.exports = {
                     "latest",
                     "{{version}}",
                     "{{major}}.{{minor}}",
-                    "{{env.GITHU_REF}}"
+                    process.env.BRANCH_NAME
                 ],
-                "dockerImage": "{{env.GITHU_REF}}",
-                "dockerFile": "Dockerfile",
-                "dockerRegistry": "{{env.REGISTRY}}",
-                "dockerProject": "{{env.GITHUB_REPOSITORY_OWNER}}",
+                "dockerImage": process.env.BACKEND_IMAGE_NAME,
+                "dockerFile": "./backend/Dockerfile",
+                "dockerRegistry": process.env.REGISTRY,
+                "dockerProject": process.env.BACKEND_IMAGE_PROJECT,
+                "dockerContext": "./backend/",
                 "dockerPlatform": ["linux/amd64"],
-                "dockerBuildFlags": {
-                    "target": "release"
-                },
             }
         ],
     ]

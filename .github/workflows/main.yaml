@@ -2,7 +2,11 @@ name: Build
 
 env:
   REGISTRY: ghcr.io
-  BACKEND_IMAGE_NAME: ${{ github.repository_owner }}/backend
+  DOCKER_REGISTRY_USER: ${{ github.actor }}
+  DOCKER_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+  BACKEND_IMAGE_NAME: backend
+  BACKEND_IMAGE_PROJECT: ${{ github.repository_owner }}
+  BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
 
 on:
   workflow_dispatch:
@@ -32,13 +36,13 @@ jobs:
       - name: Build with Maven
         run: mvn -B install --file pom.xml -DskipTests
 
-      # - name: Upload target
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: build_artifacts
-      #     path: |
-      #       backend/target/
-      #       backend/Dockerfile
+      - name: Upload target
+        uses: actions/upload-artifact@v4
+        with:
+          name: build_artifacts
+          path: |
+            backend/target/
+            worker/target/
 
   release:
     needs: build-maven
@@ -48,8 +52,13 @@ jobs:
       issues: write         # to be able to comment on released issues
       pull-requests: write  # to be able to comment on released pull requests
       id-token: write       # to enable use of OIDC for npm provenance
+      packages: write       # to be able to publish docker image
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build_artifacts
       - uses: actions/setup-node@v3
         with:
           cache: npm
@@ -57,7 +66,7 @@ jobs:
       - run: npm clean-install
       - name: Release
         env:
-          TARGET_PATH: "./backend"
+          # TARGET_PATH: "./backend"
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN_TRG }}
         run: npx semantic-release
 
@@ -73,7 +82,7 @@ jobs:
       id-token: write
 
     steps:
-      # - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
